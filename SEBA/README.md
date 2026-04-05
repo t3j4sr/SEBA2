@@ -1,119 +1,67 @@
-# S.E.B.A — Smart Expense Behaviour Analyser 🧠💸
+# SEBA- Smart Expense Behaviour Analyser 🧠💸
 
-A zero-manual-input expense tracking backend that passively ingests bank SMS messages and statements, categorizes transactions, and surfaces behavioural analytics including **impulsive purchase detection**.
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Framework | Python 3.11 + FastAPI |
-| Database | Supabase (PostgreSQL) via `supabase-py` |
-| Parsing | Custom Regex engine + pandas + pdfplumber |
-| Categorization | Rule-based keyword engine (extendable to HuggingFace) |
-| Hosting | Uvicorn (local) / Render / HuggingFace Spaces |
+**SEBA- upload ur bank statement and get future predictions, personalized finance coach and much more.**
 
 ---
 
-## Project Structure
+## 🏆 Competitive Analysis
+
+*   **Behavioral Analysis**: Understands your spending patterns and identifies impulse buys based on time, day, and merchant.
+*   **Future Prediction**: Forecasts upcoming fixed expenses (rent, bills, EMI) and potential variable splurge periods based on your unique history.
+*   **Personalized AI Coach**: Chat with S.E.B.A., your AI finance assistant, for custom insights on your categories, savings potential, and habits.
+*   **Credit Card Insights**: Visual tracking of credit card utilization.
+*   **Tax Save Recs**: Get basic suggestions on tax-saving investments based on your current expense footprint.
+*   **Zero Manual Entry**: Upload a bank statement (CSV/PDF) and the system completely auto-categorizes your transactions.
+
+---
+
+## 🛠 Tech Stack
+
+*   **Hosting**: Render
+*   **Database**: Supabase
+*   **Backend**: FastAPI
+*   **AI Engine**: Groq
+*   **Parsing Engine**: pandas / pdfplumber
+
+---
+
+## 🚀 How to Use
+
+**Web App Link:**  
+**[https://seba2.onrender.com](https://seba2.onrender.com)**
+
+*(Note: We also have the Android `.apk` file for mobile installations).*
+
+**Dependencies (if running locally):**
+```bash
+pip install fastapi uvicorn pydantic python-multipart pdfplumber pandas supabase python-dotenv httpx
+```
+
+---
+
+## 🗂 Project Folder Structure
 
 ```
 SEBA/
-├── main.py                  # FastAPI app entry point
-├── seed.py                  # Demo data loader (reads middle_class_expenses.json)
-├── schema.sql               # Run this in Supabase SQL Editor first!
-├── requirements.txt
-├── .env                     # Your credentials (never commit this)
-├── .env.example             # Template
+├── main.py                  # FastAPI app entry point (Backend routing)
+├── requirements.txt         # Dependencies
+├── .env                     # Your credentials (Render & Supabase)
+├── static/                  # Frontend Web App Folder
+│   ├── index.html           # Main Dashboard (Upload & summary view)
+│   ├── analytics.html       # Visual analytics & Behavioral insights
+│   ├── predictions.html     # Future risk-day prediction calendar
+│   ├── login.html           # Authentication UI
+│   ├── crypto.html          # Crypto Space module
+│   ├── health.html          # Financial health score module
+│   └── chat-widget.js       # Floating AI chatbot logic
 └── app/
     ├── db.py                # Supabase client singleton
-    ├── models.py            # Pydantic request/response models
-    ├── categorizer.py       # Category + impulsive detection engine
-    ├── sms_parser.py        # Regex SMS parser
-    ├── statement_parser.py  # CSV / PDF parser
+    ├── models.py            # Data validation schemas
+    ├── categorizer.py       # Auto-category + impulsive detection engine
+    ├── statement_parser.py  # Bank statement (CSV/PDF) ingester
     └── routers/
-        ├── sync.py          # POST /sync/sms
-        ├── upload.py        # POST /upload/statement
-        ├── transactions.py  # GET  /transactions/{user_id}
-        └── analytics.py     # GET  /analytics/dashboard|impulsive/{user_id}
+        ├── auth.py          # Secure signup/login
+        ├── upload.py        # Statement upload handling
+        ├── transactions.py  # History retrieval
+        └── analytics.py     # Aggregation & AI pattern generation
 ```
-
----
-
-## Setup
-
-### 1. Create the Supabase table
-
-Open **Supabase Dashboard → SQL Editor** and run the entire contents of `schema.sql`.
-
-### 2. Configure environment
-
-```bash
-# The .env is already configured with your credentials.
-# To check: cat .env
-```
-
-### 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Seed demo data
-
-```bash
-python seed.py
-```
-
-This reads `../middle_class_expenses.json` and inserts all transactions under the fixed demo user ID `00000000-0000-0000-0000-000000000001`.
-
-### 5. Run the server
-
-```bash
-uvicorn main:app --reload
-```
-
-Server runs at: **http://127.0.0.1:8000**  
-Interactive docs: **http://127.0.0.1:8000/docs**
-
----
-
-## API Endpoints
-
-### Ingestion
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/sync/sms` | Ingest a batch of raw SMS strings |
-| `POST` | `/upload/statement` | Upload a CSV or PDF bank statement |
-
-### Retrieval
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/transactions/{user_id}` | Paginated transaction list (supports `?category=Food&impulsive_only=true`) |
-| `GET` | `/analytics/dashboard/{user_id}` | Total spend, per-category breakdown, monthly trend, top merchant |
-| `GET` | `/analytics/impulsive/{user_id}` | All flagged impulsive transactions with reasoning |
-
-### Quick test with demo data
-
-```
-GET http://127.0.0.1:8000/analytics/dashboard/00000000-0000-0000-0000-000000000001
-GET http://127.0.0.1:8000/analytics/impulsive/00000000-0000-0000-0000-000000000001
-GET http://127.0.0.1:8000/transactions/00000000-0000-0000-0000-000000000001
-```
-
----
-
-## Impulsive Purchase Detection Rules
-
-A transaction is flagged as **impulsive** (is_impulsive = true) when **any** of the following are true:
-
-| Rule | Condition |
-|---|---|
-| High Spend | Non-essential category (Entertainment/Shopping/Travel) exceeds category threshold |
-| Late Night | Purchase in a non-essential category between 10 PM – 5 AM |
-| Weekend Splurge | Non-essential weekend purchase above ₹1,000 |
-
-The `impulse_reason` column stores a human-readable explanation for each flag.
