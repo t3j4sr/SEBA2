@@ -386,7 +386,7 @@ window.scSend = async function () {
       hist.push({ role: 'model', parts: [{ text }] });
       if (hist.length > 20) hist = hist.slice(-20);
     } else {
-      renderCards('INSIGHT|[danger]|❌|Something went wrong — please try again');
+      renderCards(`INSIGHT|[danger]|❌|${data.detail || 'Something went wrong — please try again'}`);
     }
   } catch {
     hideTyping();

@@ -79,10 +79,16 @@ async def ai_chat(request: Request):
         )
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}",
             json=body
         )
-    return resp.json()
+    
+    data = resp.json()
+    if resp.status_code != 200:
+        error_msg = data.get("error", {}).get("message", "Unknown Google API Error")
+        raise HTTPException(status_code=502, detail=f"Gemini API Error: {error_msg}")
+        
+    return data
 
 @app.get("/health", tags=["Health"])
 async def health():
