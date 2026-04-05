@@ -90,7 +90,7 @@ async def ai_chat(request: Request):
         messages.append({"role": role, "content": text})
 
     groq_body = {
-        "model": "llama3-8b-8192",
+        "model": "llama-3.3-70b-versatile",
         "messages": messages,
         "temperature": 0.5,
         "max_tokens": 1500
