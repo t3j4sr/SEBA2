@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.E.B.A. – Credit Cards</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#08080f;--surface:#0f0f1a;--card:#12121e;--border:#1c1c2e;--accent:#6366f1;--text:#f1f1fb;--muted:#6b6b90;--success:#22c55e;--warn:#f59e0b}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2.5rem;background:rgba(8,8,15,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+    .logo{font-size:1.1rem;font-weight:700}.logo span{color:var(--accent)}.tagline{font-size:.68rem;color:var(--muted)}
+    .nav-links{display:flex;gap:.5rem;align-items:center}
+    .nav-link{display:flex;align-items:center;gap:.4rem;padding:.42rem .9rem;border-radius:8px;font-size:.8rem;font-weight:500;color:var(--muted);border:1px solid transparent;background:none;transition:all .2s;text-decoration:none}
+    .nav-link:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
+    .nav-link.health{background:rgba(236,72,153,.12);border-color:rgba(236,72,153,.3);color:#f472b6}
+    .nav-link.health:hover{background:rgba(236,72,153,.2);border-color:#f472b6;color:#fff}
+    main{max-width:1020px;margin:0 auto;padding:2.8rem 1.5rem 6rem}
+    .page-title{font-size:1.5rem;font-weight:800;margin-bottom:.35rem;background:linear-gradient(135deg,#fff 60%,#8b8be8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .page-sub{font-size:.85rem;color:var(--muted);margin-bottom:.9rem}
+    .reco-banner{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.2);border-radius:12px;padding:.9rem 1.3rem;margin-bottom:2rem;font-size:.82rem;color:var(--muted);line-height:1.6}
+    .reco-banner strong{color:var(--text)}
+    .section-label{font-size:.65rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+
+    /* ── Card grid ── */
+    .cc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem}
+    .cc{position:relative;display:flex;flex-direction:column;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;transition:border-color .22s,transform .22s,box-shadow .22s;cursor:pointer}
+    .cc:hover{border-color:rgba(99,102,241,.5);transform:translateY(-5px);box-shadow:0 14px 42px rgba(99,102,241,.13)}
+    .cc.top-pick{border-color:rgba(99,102,241,.35)}
+
+    /* — Visual credit card strip at top — */
+    .cc-strip{height:90px;position:relative;padding:1rem 1.2rem;display:flex;align-items:flex-end;justify-content:space-between;overflow:hidden}
+    .cc-strip::before{content:'';position:absolute;inset:0;background:inherit;z-index:0}
+    .cc-strip-inner{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;width:100%}
+    .cc-logo{width:46px;height:30px;border-radius:5px;object-fit:contain;background:#fff;padding:3px;flex-shrink:0}
+    .cc-logo-svg{width:46px;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.3rem;background:rgba(255,255,255,.1);backdrop-filter:blur(4px)}
+    .cc-reward{font-size:1.6rem;font-weight:800;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.3);line-height:1}
+    .cc-chip{width:22px;height:16px;border-radius:3px;background:linear-gradient(135deg,#e8d89a,#b8960c);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+    /* corner badge */
+    .cc-badge-corner{position:absolute;top:0;left:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);border-radius:0 0 10px 0;padding:.22rem .7rem;font-size:.6rem;font-weight:700;letter-spacing:.5px;color:#fff;z-index:2}
+
+    .cc-body{padding:1rem 1.2rem 1rem;flex:1;display:flex;flex-direction:column;gap:.35rem}
+    .cc-name{font-size:.95rem;font-weight:700}
+    .cc-bank{font-size:.72rem;color:var(--muted)}
+    .cc-desc{font-size:.76rem;color:var(--muted);line-height:1.55;flex:1;margin-top:.3rem}
+    .cc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:.8rem;padding-top:.7rem;border-top:1px solid var(--border)}
+    .cc-fee{font-size:.68rem;color:var(--muted)}
+    .cc-link{font-size:.72rem;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:.3rem;transition:gap .18s}
+    .cc:hover .cc-link{gap:.5rem}
+    .cc-link::after{content:'→'}
+
+    /* Bank brand gradients */
+    .hdfc .cc-strip{background:linear-gradient(135deg,#1a1a6e 0%,#0d0d4a 100%)}
+    .icici .cc-strip{background:linear-gradient(135deg,#b31217 0%,#7a0000 100%)}
+    .sbi .cc-strip{background:linear-gradient(135deg,#003087 0%,#00194e 100%)}
+    .axis .cc-strip{background:linear-gradient(135deg,#800000 0%,#4a0000 100%)}
+    .swiggy .cc-strip{background:linear-gradient(135deg,#e07c1b 0%,#c05800 100%)}
+    .bpcl .cc-strip{background:linear-gradient(135deg,#1a5732 0%,#0d3320 100%)}
+
+    @media(max-width:850px){.cc-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:540px){.cc-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <div><div class="logo">S.E.B.A. <span>💬</span></div><div class="tagline">Smart Expense Behaviour Analyser</div></div>
+  <div class="nav-links">
+    <a href="/predictions" class="nav-link">📅 Predictions</a>
+    <a href="/analytics" class="nav-link">📊 Analytics</a>
+
+    <a href="/home" class="nav-link">← Home</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-title">💳 Credit Card Picks</div>
+  <p class="page-sub">Personalised to your top spend categories. Click any card to apply.</p>
+  <div class="reco-banner" id="recoBanner">Analysing your spending profile…</div>
+
+  <div class="section-label">Best Picks for Your Habits</div>
+  <div class="cc-grid">
+
+    <!-- HDFC Millennia -->
+    <a class="cc top-pick hdfc" href="https://www.bankbazaar.com/credit-card/hdfc-millennia-credit-card.html" target="_blank" rel="noopener">
+      <div class="cc-strip">
+        <div class="cc-badge-corner">⭐ TOP PICK</div>
+        <div class="cc-strip-inner">
+          <div>
+            <div class="cc-chip"></div>
+          </div>
+          <div class="cc-reward">5%</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div>
+          <div class="cc-name">HDFC Millennia</div>
+          <div class="cc-bank">HDFC Bank</div>
+        </div>
+        <div class="cc-desc">5% cashback on Amazon, Flipkart, Zomato, Swiggy · 1% on all else · 8 free lounge visits/yr</div>
+        <div class="cc-foot">
+          <span class="cc-fee">₹1,000/yr · waived on ₹1L</span>
+          <span class="cc-link">Apply</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Amazon ICICI -->
+    <a class="cc icici" href="https://www.bankbazaar.com/credit-card/amazon-pay-icici-credit-card.html" target="_blank" rel="noopener">
+      <div class="cc-strip">
+        <div class="cc-badge-corner">FREE ∞</div>
+        <div class="cc-strip-inner">
+          <div class="cc-chip"></div>
+          <div class="cc-reward">5%</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div>
+          <div class="cc-name">Amazon Pay ICICI</div>
+          <div class="cc-bank">ICICI Bank</div>
+        </div>
+        <div class="cc-desc">5% on Amazon (Prime) · 2% on Amazon Pay · 1% everywhere · Lifetime free card</div>
+        <div class="cc-foot">
+          <span class="cc-fee">₹0 — Lifetime Free</span>
+          <span class="cc-link">Apply</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- SBI SimplyCLICK -->
+    <a class="cc sbi" href="https://www.bankbazaar.com/credit-card/sbi-simplyclick-credit-card.html" target="_blank" rel="noopener">
+      <div class="cc-strip">
+        <div class="cc-strip-inner">
+          <div class="cc-chip"></div>
+          <div class="cc-reward">10×</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div>
+          <div class="cc-name">SBI SimplyCLICK</div>
+          <div class="cc-bank">State Bank of India</div>
+        </div>
+        <div class="cc-desc">10× points on Cleartrip, BookMyShow · 5× other online · ₹500 Amazon voucher milestone</div>
+        <div class="cc-foot">
+          <span class="cc-fee">₹499/yr · waived on ₹1L</span>
+          <span class="cc-link">Apply</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Axis Magnus -->
+    <a class="cc axis" href="https://www.bankbazaar.com/credit-card/axis-bank-magnus-credit-card.html" target="_blank" rel="noopener">
+      <div class="cc-strip">
+        <div class="cc-badge-corner">PREMIUM</div>
+        <div class="cc-strip-inner">
+          <div class="cc-chip"></div>
+          <div class="cc-reward">12pts</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div>
+          <div class="cc-name">Axis Magnus</div>
+          <div class="cc-bank">Axis Bank</div>
+        </div>
+        <div class="cc-desc">12 Edge points/₹200 on travel · 5% back on Zomato &amp; BigBasket · Unlimited lounge access</div>
+        <div class="cc-foot">
+          <span class="cc-fee">₹12,500/yr · high spenders</span>
+          <span class="cc-link">Apply</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Swiggy HDFC -->
+    <a class="cc swiggy" href="https://www.bankbazaar.com/credit-card/swiggy-hdfc-bank-credit-card.html" target="_blank" rel="noopener">
+      <div class="cc-strip">
+        <div class="cc-strip-inner">
+          <div class="cc-chip"></div>
+          <div class="cc-reward">10%</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div>
+          <div class="cc-name">Swiggy HDFC Bank</div>
+          <div class="cc-bank">HDFC Bank</div>
+        </div>
+        <div class="cc-desc">10% on Swiggy · 5% on Instamart, Dineout · Free Swiggy One membership included</div>
+        <div class="cc-foot">
+          <span class="cc-fee">₹500/yr · waived on ₹2L</span>
+          <span class="cc-link">Apply</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- BPCL SBI -->
+    <a class="cc bpcl" href="https://www.bankbazaar.com/credit-card/bpcl-sbi-card-octane.html" target="_blank" rel="noopener">
+      <div class="cc-strip">
+        <div class="cc-strip-inner">
+          <div class="cc-chip"></div>
+          <div class="cc-reward">7.25%</div>
+        </div>
+      </div>
+      <div class="cc-body">
+        <div>
+          <div class="cc-name">BPCL SBI Octane</div>
+          <div class="cc-bank">State Bank of India</div>
+        </div>
+        <div class="cc-desc">7.25% value back on BPCL fuel · Surcharge waiver · 10× on grocery &amp; dining</div>
+        <div class="cc-foot">
+          <span class="cc-fee">₹1,499/yr · waived on ₹2L</span>
+          <span class="cc-link">Apply</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</main>
+
+<script>
+let _sess; try { _sess = JSON.parse(localStorage.getItem('sebaUser') || 'null'); } catch(e) { _sess = null; }
+if (!_sess || !_sess.user_id) { location.replace('/login'); throw new Error('No session'); }
+const U = _sess.user_id;
+async function init(){
+  const banner=document.getElementById('recoBanner');
+  try{
+    const d=await fetch(`/analytics/dashboard/${U}`).then(r=>r.json());
+    const cats=Object.entries(d.by_category||{}).sort(([,a],[,b])=>b-a);
+    if(!cats.length){banner.textContent='Add more transactions to get personalised picks!';return;}
+    const top=cats.slice(0,3).map(([k])=>k).join(', ');
+    const est=Math.round(d.total_spent*0.03);
+    banner.innerHTML=`Top categories: <strong>${top}</strong> — the cards above maximize rewards for these. Estimated annual cashback: <strong>₹${est.toLocaleString('en-IN')}+</strong>`;
+  }catch(e){banner.textContent='Add transactions to unlock personalised card picks.';}
+}
+init();
+</script>
+<style>.chat-fab{position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;border:none;box-shadow:0 4px 24px rgba(99,102,241,.4);transition:transform .2s,box-shadow .2s;z-index:9999}.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(99,102,241,.6)}</style>
+<button class="chat-fab" title="AI Chat" onclick="location.href='/chat'">💬</button>
+<script src="/static/chat-widget.js"></script></body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.E.B.A. – Tax Tips</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#08080f;--surface:#0f0f1a;--card:#12121e;--border:#1c1c2e;--accent:#6366f1;--text:#f1f1fb;--muted:#6b6b90;--warn:#f59e0b;--success:#22c55e}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2.5rem;background:rgba(8,8,15,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+    .logo{font-size:1.1rem;font-weight:700}.logo span{color:var(--accent)}.tagline{font-size:.68rem;color:var(--muted)}
+    .nav-links{display:flex;gap:.5rem;align-items:center}
+    .nav-link{display:flex;align-items:center;gap:.4rem;padding:.42rem .9rem;border-radius:8px;font-size:.8rem;font-weight:500;color:var(--muted);border:1px solid transparent;background:none;transition:all .2s;text-decoration:none}
+    .nav-link:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
+    .nav-link.health{background:rgba(236,72,153,.12);border-color:rgba(236,72,153,.3);color:#f472b6}
+    .nav-link.health:hover{background:rgba(236,72,153,.2);border-color:#f472b6;color:#fff}
+    main{max-width:980px;margin:0 auto;padding:2.8rem 1.5rem 6rem}
+    .page-title{font-size:1.5rem;font-weight:800;margin-bottom:.35rem;background:linear-gradient(135deg,#fff 60%,#8b8be8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .page-sub{font-size:.85rem;color:var(--muted);margin-bottom:2.2rem}
+    .section-label{font-size:.65rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+
+    /* ── Flashcard grid ── */
+    .fc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:2.8rem}
+    .fc{position:relative;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem 1.4rem 1.2rem;text-decoration:none;color:var(--text);transition:border-color .22s,transform .22s,box-shadow .22s;overflow:hidden;cursor:pointer}
+    .fc::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 10%,rgba(99,102,241,.12) 0%,transparent 60%);pointer-events:none}
+    .fc:hover{border-color:rgba(99,102,241,.55);transform:translateY(-5px);box-shadow:0 12px 40px rgba(99,102,241,.14)}
+
+    /* top row */
+    .fc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+    .fc-emoji{font-size:1.75rem;line-height:1}
+    .fc-badge{font-size:.62rem;font-weight:700;padding:.22rem .65rem;border-radius:99px;background:rgba(245,158,11,.15);color:var(--warn);letter-spacing:.3px;white-space:nowrap}
+
+    .fc-title{font-size:.97rem;font-weight:700;line-height:1.3;margin-bottom:.45rem}
+    .fc-desc{font-size:.77rem;color:var(--muted);line-height:1.6;flex:1}
+
+    /* bottom link row */
+    .fc-foot{display:flex;align-items:center;justify-content:flex-end;margin-top:1.1rem;padding-top:.7rem;border-top:1px solid var(--border)}
+    .fc-link{font-size:.72rem;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:.3rem;transition:gap .18s}
+    .fc:hover .fc-link{gap:.55rem}
+    .fc-link::after{content:'→'}
+
+    @media(max-width:720px){.fc-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:480px){.fc-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <div><div class="logo">S.E.B.A. <span>💬</span></div><div class="tagline">Smart Expense Behaviour Analyser</div></div>
+  <div class="nav-links">
+    <a href="/predictions" class="nav-link">📅 Predictions</a>
+    <a href="/analytics" class="nav-link">📊 Analytics</a>
+
+    <a href="/home" class="nav-link">← Home</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-title">📋 Tax Tips</div>
+  <p class="page-sub">Click any card to read on the official or authoritative source.</p>
+
+  <div class="section-label">Section 80C — Save up to ₹46,800/year</div>
+  <div class="fc-grid">
+
+    <a class="fc" href="https://cleartax.in/s/ppf" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">🏦</span><span class="fc-badge">₹1.5L / yr</span></div>
+      <div class="fc-title">Public Provident Fund</div>
+      <div class="fc-desc">Government-backed · EEE tax status · 7.1% interest · 15-yr lock-in · Zero risk</div>
+      <div class="fc-foot"><span class="fc-link">PPF Guide on ClearTax</span></div>
+    </a>
+
+    <a class="fc" href="https://cleartax.in/s/elss" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">📈</span><span class="fc-badge">₹1.5L / yr</span></div>
+      <div class="fc-title">ELSS Mutual Funds</div>
+      <div class="fc-desc">3-yr lock-in · Market-linked 12–15% returns · Best tax + growth combo · SIP from ₹500</div>
+      <div class="fc-foot"><span class="fc-link">ELSS Guide on ClearTax</span></div>
+    </a>
+
+    <a class="fc" href="https://cleartax.in/s/nps-national-pension-scheme" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">🏛️</span><span class="fc-badge">₹2L total</span></div>
+      <div class="fc-title">NPS — National Pension System</div>
+      <div class="fc-desc">₹1.5L under 80C + extra ₹50K under 80CCD(1B) · Only instrument with ₹2L combined deduction</div>
+      <div class="fc-foot"><span class="fc-link">NPS Guide on ClearTax</span></div>
+    </a>
+
+    <a class="fc" href="https://cleartax.in/s/home-loan-tax-benefit" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">🏠</span><span class="fc-badge">₹1.5L / yr</span></div>
+      <div class="fc-title">Home Loan Principal</div>
+      <div class="fc-desc">Principal repayment qualifies under 80C · Interest separately deductible up to ₹2L under Sec 24</div>
+      <div class="fc-foot"><span class="fc-link">Home Loan Tax on ClearTax</span></div>
+    </a>
+
+    <a class="fc" href="https://cleartax.in/s/nsc-national-savings-certificate" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">📜</span><span class="fc-badge">₹1.5L / yr</span></div>
+      <div class="fc-title">NSC — National Savings Certificate</div>
+      <div class="fc-desc">7.7% interest · 5-yr lock-in · Govt-guaranteed · Accrued interest also tax-deductible</div>
+      <div class="fc-foot"><span class="fc-link">NSC Guide on ClearTax</span></div>
+    </a>
+
+    <a class="fc" href="https://www.etmoney.com/learn/income-tax/tax-saving-options/tax-saving-fixed-deposits/" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">🔒</span><span class="fc-badge">₹1.5L / yr</span></div>
+      <div class="fc-title">Tax-Saver Fixed Deposit</div>
+      <div class="fc-desc">5-yr FD at ~7.1–7.5% · Interest is taxable · Best for conservative investors in low tax brackets</div>
+      <div class="fc-foot"><span class="fc-link">Tax FD on ET Money</span></div>
+    </a>
+
+    <a class="fc" href="https://cleartax.in/s/hra-house-rent-allowance" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">🏘️</span><span class="fc-badge">HRA exempt</span></div>
+      <div class="fc-title">HRA — House Rent Allowance</div>
+      <div class="fc-desc">Claim rent as tax exemption · Keep receipts · PAN required if rent > ₹1L/yr</div>
+      <div class="fc-foot"><span class="fc-link">HRA Guide on ClearTax</span></div>
+    </a>
+
+    <a class="fc" href="https://cleartax.in/s/section-80d-deduction" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">💊</span><span class="fc-badge">₹25K–₹75K</span></div>
+      <div class="fc-title">Section 80D — Health Insurance</div>
+      <div class="fc-desc">₹25K self/family + ₹25K parents (₹50K if senior citizen) · Mediclaim is mandatory</div>
+      <div class="fc-foot"><span class="fc-link">80D Guide on ClearTax</span></div>
+    </a>
+
+    <a class="fc" href="https://www.etmoney.com/learn/income-tax/standard-deduction-for-salaried-employees/" target="_blank" rel="noopener">
+      <div class="fc-top"><span class="fc-emoji">⚡</span><span class="fc-badge">₹50K flat</span></div>
+      <div class="fc-title">Standard Deduction</div>
+      <div class="fc-desc">Automatic ₹50,000 off gross salary · No investment needed · Available in both old and new regime</div>
+      <div class="fc-foot"><span class="fc-link">Standard Deduction on ET Money</span></div>
+    </a>
+
+  </div>
+</main>
+<style>.chat-fab{position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;border:none;box-shadow:0 4px 24px rgba(99,102,241,.4);transition:transform .2s,box-shadow .2s;z-index:9999}.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(99,102,241,.6)}</style>
+<button class="chat-fab" title="AI Chat" onclick="location.href='/chat'">💬</button>
+<script src="/static/chat-widget.js"></script></body>
+</html>

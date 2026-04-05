@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.E.B.A. – Analytics</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0b0b10;--surface:#111118;--card:#13131d;--border:#1e1e2e;--accent:#5b5ef4;--text:#f0f0f8;--muted:#6b6b8a;--danger:#e03e5c;--success:#22c55e}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2.5rem;background:rgba(11,11,16,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .logo{font-size:1.15rem;font-weight:700}.logo span{color:var(--accent)}
+    .tagline{font-size:.7rem;color:var(--muted)}
+    .nav-links{display:flex;gap:.5rem}
+    .nav-link{display:flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:8px;font-size:.82rem;font-weight:500;color:var(--muted);cursor:pointer;border:1px solid transparent;background:none;transition:all .2s;text-decoration:none}
+    .nav-link:hover,.nav-link.active{color:var(--text);background:var(--surface);border-color:var(--border)}
+    main{max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 6rem}
+    h2{font-size:1.3rem;font-weight:700;margin-bottom:1.5rem}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem 1.3rem}
+    .stat-card .label{font-size:.68rem;font-weight:600;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:.5rem}
+    .stat-card .value{font-size:1.9rem;font-weight:700;line-height:1;color:var(--text)}
+    .stat-card .value.danger{color:var(--danger)}
+    .stat-card .sub{font-size:.72rem;color:var(--muted);margin-top:.4rem}
+    .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2.5rem}
+    .chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem}
+    .chart-card.full{grid-column:span 2}
+    .chart-card h3{font-size:.78rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+    .chart-wrap{position:relative;height:220px}
+    .insights-grid{display:flex;flex-direction:column;gap:.8rem;margin-bottom:2.5rem}
+    .insight-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;display:flex;gap:1rem;align-items:flex-start}
+    .insight-card.high{border-color:var(--danger)}
+    .insight-card.medium{border-color:#f59e0b}
+    .insight-card.positive{border-color:var(--success)}
+    .insight-icon{font-size:1.5rem;flex-shrink:0}
+    .insight-title{font-size:.88rem;font-weight:700;margin-bottom:.3rem}
+    .insight-body{font-size:.8rem;color:var(--muted);line-height:1.5}
+    .tx-scroll{max-height:400px;overflow-y:auto}
+    .tx-item{display:flex;align-items:center;gap:1rem;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;margin-bottom:.5rem}
+    .tx-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+    .tx-info{flex:1;min-width:0}
+    .tx-merchant{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .tx-meta{font-size:.72rem;color:var(--muted);margin-top:2px}
+    .tx-amount{font-size:.95rem;font-weight:700;color:var(--danger)}
+    .tx-badge{font-size:.65rem;font-weight:600;padding:.18rem .5rem;border-radius:99px;background:#1a1a2e;color:#8888cc}
+    .section-heading{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:1.2rem}
+    .empty{text-align:center;color:var(--muted);padding:2.5rem 0;font-size:.88rem}
+    @media(max-width:700px){.charts-grid{grid-template-columns:1fr}.chart-card.full{grid-column:span 1}.stats-row{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<nav>
+  <div>
+    <div class="logo">S.E.B.A. <span>💬</span></div>
+    <div class="tagline">Smart Expense Behaviour Analyser</div>
+  </div>
+  <div class="nav-links">
+    <a href="/predictions" class="nav-link">📅 Predictions</a>
+    <a href="/analytics" class="nav-link active">📊 Analytics</a>
+    <a href="/home" class="nav-link">← Home</a>
+  </div>
+</nav>
+
+<main>
+  <h2>📊 Analytics &amp; Insights</h2>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="label">Total Spent</div><div class="value" id="statTotal">—</div><div class="sub">all time</div></div>
+    <div class="stat-card"><div class="label">This Month</div><div class="value" id="statMonth">—</div><div class="sub">current month</div></div>
+    <div class="stat-card"><div class="label">Transactions</div><div class="value" id="statCount">—</div><div class="sub">logged</div></div>
+    <div class="stat-card"><div class="label">Impulsive</div><div class="value danger" id="statImp">—</div><div class="sub" id="statImpSub">₹0 flagged</div></div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card full"><h3>Monthly Spending Trend</h3><div class="chart-wrap"><canvas id="lineChart"></canvas></div></div>
+    <div class="chart-card"><h3>By Category</h3><div class="chart-wrap"><canvas id="pieChart"></canvas></div></div>
+    <div class="chart-card"><h3>Day of Week Pattern</h3><div class="chart-wrap"><canvas id="barChart"></canvas></div></div>
+  </div>
+
+  <div class="section-heading">Behavioural Insights</div>
+  <div class="insights-grid" id="insightsGrid"><div class="empty">Loading insights…</div></div>
+
+  <div class="section-heading">Recent Transactions</div>
+  <div class="tx-scroll"><div id="txList"><div class="empty">Loading…</div></div></div>
+</main>
+
+<script>
+/* ── Session guard ── */
+let _sess2;
+try { _sess2 = JSON.parse(localStorage.getItem('sebaUser') || 'null'); } catch(e) { _sess2 = null; }
+if (!_sess2 || !_sess2.user_id) { location.replace('/login'); throw new Error('No session'); }
+const U = _sess2.user_id;
+
+const CAT={Food:{icon:'🍛',color:'#f59e0b'},Transport:{icon:'🚌',color:'#3b82f6'},Bills:{icon:'📄',color:'#8b5cf6'},Entertainment:{icon:'🎬',color:'#ec4899'},Health:{icon:'💊',color:'#22c55e'},Shopping:{icon:'🛍️',color:'#f43f5e'},Travel:{icon:'✈️',color:'#06b6d4'},Education:{icon:'📚',color:'#a78bfa'},Misc:{icon:'📌',color:'#64748b'}};
+const cm=c=>CAT[c]||CAT.Misc;
+const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+Chart.defaults.color='#6b6b8a';Chart.defaults.font.family='Segoe UI,system-ui,sans-serif';
+
+async function init(){
+  const todayISO=new Date().toISOString().split('T')[0];
+  const thisMonth=todayISO.slice(0,7);
+
+  let dash=null, pat=null, txnRes=null;
+  try {
+    [dash,pat,txnRes] = await Promise.all([
+      fetch(`/analytics/dashboard/${U}`).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}),
+      fetch(`/analytics/patterns/${U}`).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}),
+      fetch(`/transactions/${U}?page_size=50`).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}),
+    ]);
+  } catch(err) {
+    console.error('[Analytics] Fetch error:', err);
+  }
+
+  /* ── Stats ── */
+  if(dash){
+    document.getElementById('statTotal').textContent='₹'+Number(dash.total_spent||0).toLocaleString('en-IN');
+    document.getElementById('statCount').textContent=dash.transaction_count||0;
+    document.getElementById('statImp').textContent=dash.impulsive_count||0;
+    document.getElementById('statImpSub').textContent='₹'+Number(dash.impulsive_total||0).toLocaleString('en-IN')+' flagged';
+    const m=dash.monthly_breakdown?.[thisMonth]||0;
+    document.getElementById('statMonth').textContent='₹'+Number(m).toLocaleString('en-IN');
+
+    /* Line chart */
+    const months=Object.keys(dash.monthly_breakdown||{});
+    const amounts=months.map(k=>dash.monthly_breakdown[k]);
+    if(months.length){
+      const ctx=document.getElementById('lineChart').getContext('2d');
+      const g=ctx.createLinearGradient(0,0,0,200);g.addColorStop(0,'rgba(91,94,244,.4)');g.addColorStop(1,'rgba(91,94,244,0)');
+      new Chart(ctx,{type:'line',data:{labels:months,datasets:[{data:amounts,borderColor:'#5b5ef4',backgroundColor:g,borderWidth:2,tension:.4,fill:true,pointBackgroundColor:'#5b5ef4',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});
+    } else {
+      document.getElementById('lineChart').parentElement.innerHTML='<div class="empty" style="height:220px;display:flex;align-items:center;justify-content:center">No monthly data yet</div>';
+    }
+
+    /* Pie chart */
+    const cats=Object.entries(dash.by_category||{}).filter(([,v])=>v>0);
+    if(cats.length){
+      new Chart(document.getElementById('pieChart'),{type:'doughnut',data:{labels:cats.map(([k])=>k),datasets:[{data:cats.map(([,v])=>v),backgroundColor:cats.map(([k])=>cm(k).color+'cc'),borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{color:'#a1a1aa',padding:12,usePointStyle:true,font:{size:11}}}}}});
+    } else {
+      document.getElementById('pieChart').parentElement.innerHTML='<div class="empty" style="height:220px;display:flex;align-items:center;justify-content:center">No category data yet</div>';
+    }
+  } else {
+    /* dash is null — show zeros */
+    ['statTotal','statMonth'].forEach(id=>{ document.getElementById(id).textContent='₹0'; });
+    document.getElementById('statCount').textContent='0';
+    document.getElementById('statImp').textContent='0';
+    document.getElementById('statImpSub').textContent='₹0 flagged';
+  }
+
+  /* ── Bar chart (day of week) ── */
+  if(pat){
+    const dowSpend=pat.day_of_week_spend||{};
+    const data=DAYS.map((_,i)=>dowSpend[String(i)]||0);
+    const colors=data.map((_,i)=>i>=5?'rgba(224,62,92,.7)':'rgba(91,94,244,.7)');
+    new Chart(document.getElementById('barChart'),{type:'bar',data:{labels:DAYS,datasets:[{data,backgroundColor:colors,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(255,255,255,.05)'}},x:{grid:{display:false}}}}});
+  }
+
+  /* ── Insights ── */
+  const grid=document.getElementById('insightsGrid');
+  if(pat){
+    const insights=pat.behavioral_insights||[];
+    if(!insights.length){
+      grid.innerHTML='<div class="empty">No significant patterns yet. Keep logging expenses!</div>';
+    } else {
+      const sev={high:'🔴',medium:'🟡',low:'🔵',positive:'🟢'};
+      grid.innerHTML=insights.map(i=>`<div class="insight-card ${i.severity}"><span class="insight-icon">${sev[i.severity]||'💡'}</span><div><div class="insight-title">${i.title}</div><div class="insight-body">${i.body}</div></div></div>`).join('');
+    }
+  } else {
+    grid.innerHTML='<div class="empty">No pattern data yet.</div>';
+  }
+
+  /* ── Transactions ── */
+  const list=document.getElementById('txList');
+  if(txnRes){
+    const txns=txnRes.transactions||[];
+    if(!txns.length){
+      list.innerHTML='<div class="empty">No transactions yet.</div>';
+    } else {
+      list.innerHTML=txns.map(t=>{const meta=cm(t.category);const imp=t.is_impulsive;return`<div class="tx-item"><div class="tx-icon" style="background:${meta.color}22;color:${meta.color}">${meta.icon}</div><div class="tx-info"><div class="tx-merchant">${t.merchant}</div><div class="tx-meta">${t.date} · ${t.source}${imp?' · ⚡ '+t.impulse_reason:''}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="tx-badge">${t.category}</span><span class="tx-amount">₹${parseFloat(t.amount).toLocaleString('en-IN')}</span></div></div>`;}).join('');
+    }
+  } else {
+    list.innerHTML='<div class="empty">Could not load transactions.</div>';
+  }
+}
+init();
+</script>
+<style>.chat-fab{position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:#5b5ef4;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;border:none;box-shadow:0 4px 24px rgba(91,94,244,.4);transition:transform .2s,box-shadow .2s;z-index:9999}.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(91,94,244,.6)}</style>
+<button class="chat-fab" title="AI Chat" onclick="location.href='/chat'">💬</button>
+<script src="/static/chat-widget.js"></script></body>
+</html>

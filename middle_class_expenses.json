@@ -1,0 +1,201 @@
+{
+  "person": "Middle Class Individual",
+  "currency": "INR",
+  "months": [
+    {
+      "month": "January",
+      "days": [
+        {
+          "date": "2026-01-01",
+          "expenses": [
+            {
+              "category": "Food",
+              "description": "Milk",
+              "amount": 28
+            },
+            {
+              "category": "Food",
+              "description": "Vegetables",
+              "amount": 120
+            },
+            {
+              "category": "Transport",
+              "description": "Bus fare",
+              "amount": 15
+            },
+            {
+              "category": "Misc",
+              "description": "Temple donation",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "date": "2026-01-02",
+          "expenses": [
+            {
+              "category": "Food",
+              "description": "Breakfast idli",
+              "amount": 30
+            },
+            {
+              "category": "Bills",
+              "description": "Electricity bill",
+              "amount": 1450
+            },
+            {
+              "category": "Transport",
+              "description": "Auto fare",
+              "amount": 80
+            }
+          ]
+        },
+        {
+          "date": "2026-01-03",
+          "expenses": [
+            {
+              "category": "Food",
+              "description": "Groceries",
+              "amount": 650
+            },
+            {
+              "category": "Entertainment",
+              "description": "Mobile recharge",
+              "amount": 199
+            },
+            {
+              "category": "Misc",
+              "description": "Plastic cover",
+              "amount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "month": "February",
+      "days": [
+        {
+          "date": "2026-02-01",
+          "expenses": [
+            {
+              "category": "Food",
+              "description": "Milk",
+              "amount": 28
+            },
+            {
+              "category": "Food",
+              "description": "Rice bag (partial)",
+              "amount": 500
+            },
+            {
+              "category": "Transport",
+              "description": "Bus fare",
+              "amount": 15
+            }
+          ]
+        },
+        {
+          "date": "2026-02-02",
+          "expenses": [
+            {
+              "category": "Bills",
+              "description": "Internet bill",
+              "amount": 799
+            },
+            {
+              "category": "Food",
+              "description": "Tea & snacks",
+              "amount": 20
+            },
+            {
+              "category": "Misc",
+              "description": "Charity",
+              "amount": 5
+            }
+          ]
+        },
+        {
+          "date": "2026-02-03",
+          "expenses": [
+            {
+              "category": "Health",
+              "description": "Medicines",
+              "amount": 230
+            },
+            {
+              "category": "Food",
+              "description": "Lunch",
+              "amount": 80
+            },
+            {
+              "category": "Transport",
+              "description": "Bike petrol",
+              "amount": 200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "month": "March",
+      "days": [
+        {
+          "date": "2026-03-01",
+          "expenses": [
+            {
+              "category": "Food",
+              "description": "Milk",
+              "amount": 28
+            },
+            {
+              "category": "Food",
+              "description": "Fruits",
+              "amount": 90
+            },
+            {
+              "category": "Misc",
+              "description": "Parking fee",
+              "amount": 10
+            }
+          ]
+        },
+        {
+          "date": "2026-03-02",
+          "expenses": [
+            {
+              "category": "Bills",
+              "description": "House rent",
+              "amount": 12000
+            },
+            {
+              "category": "Food",
+              "description": "Dinner",
+              "amount": 120
+            }
+          ]
+        },
+        {
+          "date": "2026-03-03",
+          "expenses": [
+            {
+              "category": "Transport",
+              "description": "Bus pass",
+              "amount": 600
+            },
+            {
+              "category": "Entertainment",
+              "description": "Movie ticket",
+              "amount": 250
+            },
+            {
+              "category": "Misc",
+              "description": "Pen",
+              "amount": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

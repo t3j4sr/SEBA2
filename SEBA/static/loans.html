@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.E.B.A. – Loan Guide</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0b0b10;--surface:#111118;--card:#13131d;--border:#1e1e2e;--accent:#5b5ef4;--text:#f0f0f8;--muted:#6b6b8a;--success:#22c55e;--warn:#f59e0b;--danger:#e03e5c}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2.5rem;background:rgba(11,11,16,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+    .logo{font-size:1.15rem;font-weight:700}.logo span{color:var(--accent)}.tagline{font-size:.7rem;color:var(--muted)}
+    .nav-links{display:flex;gap:.5rem;align-items:center}
+    .nav-link{display:flex;align-items:center;gap:.4rem;padding:.45rem 1rem;border-radius:8px;font-size:.82rem;font-weight:500;color:var(--muted);cursor:pointer;border:1px solid transparent;background:none;transition:all .2s;text-decoration:none}
+    .nav-link:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
+    .nav-link.health{background:rgba(236,72,153,.12);border-color:rgba(236,72,153,.3);color:#f472b6}
+    .nav-link.health:hover{background:rgba(236,72,153,.22);border-color:#f472b6;color:#fff}
+    main{max-width:960px;margin:0 auto;padding:2.5rem 1.5rem 6rem}
+    h2{font-size:1.3rem;font-weight:700;margin-bottom:.4rem}
+    .sub-head{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem}
+    .section-label{font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:.4rem 0 1.1rem}
+
+    /* EMI Calculator */
+    .emi-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.8rem;margin-bottom:2rem}
+    .emi-card h3{font-size:.9rem;font-weight:700;margin-bottom:1.3rem}
+    .emi-slider-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.2rem;margin-bottom:1.2rem}
+    .sl{display:flex;flex-direction:column;gap:.4rem}
+    .sl label{font-size:.74rem;color:var(--muted);display:flex;justify-content:space-between}
+    .sl label span{color:var(--text);font-weight:700}
+    .sl input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}
+    .emi-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;background:var(--surface);border-radius:12px;padding:1.2rem;margin-top:.5rem}
+    .eg{text-align:center}
+    .eg .ev{font-size:1.3rem;font-weight:800}
+    .eg .el{font-size:.7rem;color:var(--muted);margin-top:.2rem}
+
+    /* Loan flashcards */
+    .cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem}
+    .fc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.4rem;display:flex;flex-direction:column;gap:.7rem;
+        transition:border-color .2s,transform .2s;text-decoration:none;color:var(--text)}
+    .fc:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 8px 32px rgba(91,94,244,.12)}
+    .fc-icon{font-size:2rem;display:block}
+    .fc-rate{font-size:1.25rem;font-weight:800;color:var(--success)}
+    .fc-title{font-size:.9rem;font-weight:700}
+    .fc-rows{border-top:1px solid var(--border);padding-top:.7rem;display:flex;flex-direction:column;gap:.35rem;margin-top:auto}
+    .fc-row{display:flex;justify-content:space-between;font-size:.74rem}
+    .fc-row .fk{color:var(--muted)}.fc-row .fv{font-weight:600}
+    .fc-link{display:flex;align-items:center;gap:.3rem;font-size:.7rem;color:var(--accent);font-weight:600;margin-top:.5rem}
+    .fc-link::after{content:'→';transition:transform .2s}
+    .fc:hover .fc-link::after{transform:translateX(3px)}
+
+    /* Tips */
+    .tips-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem}
+    .tip-fc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.2rem;display:flex;gap:.9rem;align-items:flex-start}
+    .tip-icon{font-size:1.3rem;flex-shrink:0}
+    .tip-text{font-size:.78rem;color:var(--muted);line-height:1.5}
+    .tip-text strong{color:var(--text)}
+    @media(max-width:800px){.cards-grid{grid-template-columns:1fr 1fr}.tips-row{grid-template-columns:1fr 1fr}.emi-slider-row{grid-template-columns:1fr}.emi-grid{grid-template-columns:1fr 1fr 1fr}}
+    @media(max-width:500px){.cards-grid{grid-template-columns:1fr}.tips-row{grid-template-columns:1fr}.emi-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <div><div class="logo">S.E.B.A. <span>💬</span></div><div class="tagline">Smart Expense Behaviour Analyser</div></div>
+  <div class="nav-links">
+    <a href="/predictions" class="nav-link">📅 Predictions</a>
+    <a href="/analytics" class="nav-link">📊 Analytics</a>
+
+    <a href="/" class="nav-link">← Home</a>
+  </div>
+</nav>
+<main>
+  <h2>🏛️ Loan Guide</h2>
+  <p class="sub-head">Click any loan card to compare rates &amp; apply. Use the EMI calculator below to plan.</p>
+
+  <!-- Loan Flashcards -->
+  <div class="section-label">Loan Types — Click to Compare &amp; Apply</div>
+  <div class="cards-grid">
+
+    <a class="fc" href="https://www.bankbazaar.com/home-loan.html" target="_blank" rel="noopener">
+      <span class="fc-icon">🏠</span>
+      <div class="fc-rate">8.5–10.5%</div>
+      <div class="fc-title">Home Loan</div>
+      <div class="fc-rows">
+        <div class="fc-row"><span class="fk">Max Amount</span><span class="fv">Up to ₹5 Cr</span></div>
+        <div class="fc-row"><span class="fk">Tenure</span><span class="fv">Up to 30 yrs</span></div>
+        <div class="fc-row"><span class="fk">Best Banks</span><span class="fv">SBI, HDFC, LIC HFL</span></div>
+      </div>
+      <span class="fc-link">Compare on BankBazaar</span>
+    </a>
+
+    <a class="fc" href="https://www.bankbazaar.com/personal-loan.html" target="_blank" rel="noopener">
+      <span class="fc-icon">👤</span>
+      <div class="fc-rate">10.5–18%</div>
+      <div class="fc-title">Personal Loan</div>
+      <div class="fc-rows">
+        <div class="fc-row"><span class="fk">Max Amount</span><span class="fv">Up to ₹40L</span></div>
+        <div class="fc-row"><span class="fk">Tenure</span><span class="fv">1–5 years</span></div>
+        <div class="fc-row"><span class="fk">Best Banks</span><span class="fv">HDFC, SBI, Axis</span></div>
+      </div>
+      <span class="fc-link">Compare on BankBazaar</span>
+    </a>
+
+    <a class="fc" href="https://www.bankbazaar.com/car-loan.html" target="_blank" rel="noopener">
+      <span class="fc-icon">🚗</span>
+      <div class="fc-rate">8.7–12%</div>
+      <div class="fc-title">Car Loan</div>
+      <div class="fc-rows">
+        <div class="fc-row"><span class="fk">Max Amount</span><span class="fv">90% of car value</span></div>
+        <div class="fc-row"><span class="fk">Tenure</span><span class="fv">1–7 years</span></div>
+        <div class="fc-row"><span class="fk">Best Banks</span><span class="fv">SBI, ICICI, Kotak</span></div>
+      </div>
+      <span class="fc-link">Compare on BankBazaar</span>
+    </a>
+
+    <a class="fc" href="https://www.bankbazaar.com/education-loan.html" target="_blank" rel="noopener">
+      <span class="fc-icon">📚</span>
+      <div class="fc-rate">7.5–12%</div>
+      <div class="fc-title">Education Loan</div>
+      <div class="fc-rows">
+        <div class="fc-row"><span class="fk">Max Amount</span><span class="fv">Up to ₹1.5 Cr (abroad)</span></div>
+        <div class="fc-row"><span class="fk">Moratorium</span><span class="fv">Course + 1 year</span></div>
+        <div class="fc-row"><span class="fk">Tax Benefit</span><span class="fv">80E interest deduction</span></div>
+      </div>
+      <span class="fc-link">Compare on BankBazaar</span>
+    </a>
+  </div>
+
+  <!-- EMI Calculator -->
+  <div class="emi-card">
+    <h3>📱 EMI Calculator</h3>
+    <div class="emi-slider-row">
+      <div class="sl">
+        <label>Loan Amount <span id="lAmtLbl">₹5,00,000</span></label>
+        <input type="range" id="lAmt" min="50000" max="10000000" step="10000" value="500000" oninput="updateCalc()">
+      </div>
+      <div class="sl">
+        <label>Interest Rate (p.a.) <span id="lRateLbl">10.5%</span></label>
+        <input type="range" id="lRate" min="5" max="25" step="0.5" value="10.5" oninput="updateCalc()">
+      </div>
+      <div class="sl">
+        <label>Tenure <span id="lTenLbl">60 months</span></label>
+        <input type="range" id="lTen" min="6" max="360" step="6" value="60" oninput="updateCalc()">
+      </div>
+    </div>
+    <div class="emi-grid">
+      <div class="eg"><div class="ev" id="emiVal" style="color:var(--accent)">—</div><div class="el">Monthly EMI</div></div>
+      <div class="eg"><div class="ev" id="totalVal">—</div><div class="el">Total Payment</div></div>
+      <div class="eg"><div class="ev" id="intVal" style="color:var(--danger)">—</div><div class="el">Total Interest</div></div>
+    </div>
+  </div>
+
+  <!-- Smart tips -->
+  <div class="section-label">Smart Borrowing Tips</div>
+  <div class="tips-row">
+    <div class="tip-fc"><span class="tip-icon">🔢</span><span class="tip-text"><strong>Check CIBIL first.</strong> Score 750+ gets you the best rates. Check free at CIBIL.com or PaisaBazaar.</span></div>
+    <div class="tip-fc"><span class="tip-icon">⚖️</span><span class="tip-text"><strong>Keep EMI ≤ 40% of income.</strong> Banks allow up to 50% but 40% leaves breathing room for emergencies.</span></div>
+    <div class="tip-fc"><span class="tip-icon">🚫</span><span class="tip-text"><strong>Don't apply to multiple banks at once.</strong> Each inquiry drops your CIBIL score by 5–10 points.</span></div>
+    <div class="tip-fc"><span class="tip-icon">💸</span><span class="tip-text"><strong>Prepay when possible.</strong> Even ₹10K extra on principal per year reduces your tenure significantly.</span></div>
+    <div class="tip-fc"><span class="tip-icon">📊</span><span class="tip-text"><strong>Compare before signing.</strong> Even 0.5% lower rate = significant savings over long tenures. Use BankBazaar or MyLoanCare.</span></div>
+    <div class="tip-fc"><span class="tip-icon">📄</span><span class="tip-text"><strong>Education loan interest (80E)</strong> is 100% tax deductible with no ceiling — the best tax benefit available.</span></div>
+  </div>
+</main>
+
+<script>
+function fmt(n){return'₹'+Math.round(n).toLocaleString('en-IN');}
+function parseLbl(v,type){
+  if(type==='amt') return v>=100000?'₹'+(v/100000).toFixed(1).replace('.0','')+'L':'₹'+v.toLocaleString('en-IN');
+  if(type==='rate') return v+'%';
+  if(type==='ten') return v>=12?(v/12).toFixed(1).replace('.0','')+' yrs ('+v+' mo)':v+' months';
+}
+function updateCalc(){
+  const P=+document.getElementById('lAmt').value;
+  const annualRate=+document.getElementById('lRate').value;
+  const n=+document.getElementById('lTen').value;
+  document.getElementById('lAmtLbl').textContent=parseLbl(P,'amt');
+  document.getElementById('lRateLbl').textContent=parseLbl(annualRate,'rate');
+  document.getElementById('lTenLbl').textContent=parseLbl(n,'ten');
+  const r=annualRate/12/100;
+  const emi=r>0?(P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1):P/n;
+  const total=emi*n;
+  document.getElementById('emiVal').textContent=fmt(emi);
+  document.getElementById('totalVal').textContent=fmt(total);
+  document.getElementById('intVal').textContent=fmt(total-P);
+}
+updateCalc();
+</script>
+<style>.chat-fab{position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:#5b5ef4;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;border:none;box-shadow:0 4px 24px rgba(91,94,244,.4);transition:transform .2s,box-shadow .2s;z-index:9999}.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(91,94,244,.6)}</style>
+<button class="chat-fab" title="AI Chat" onclick="location.href='/chat'">💬</button>
+<script src="/static/chat-widget.js"></script></body>
+</html>

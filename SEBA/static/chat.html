@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.E.B.A. – AI Chat</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#09090b;--card:rgba(14,14,17,.75);--b:rgba(255,255,255,.07);--t:#fafafa;--m:#a1a1aa;--p:#4f46e5;--s:#6366f1}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);background-image:radial-gradient(ellipse at 20% 0%,rgba(79,70,229,.13) 0%,transparent 55%);color:var(--t);min-height:100vh;display:flex;flex-direction:column}
+    nav{position:sticky;top:0;z-index:50;padding:14px 28px;display:flex;align-items:center;gap:12px;background:rgba(9,9,11,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--b)}
+    .logo{font-size:1.1rem;font-weight:700}.nr{margin-left:auto}.ghost{padding:7px 14px;border:1px solid var(--b);border-radius:8px;background:transparent;color:var(--m);font-size:.82rem;cursor:pointer;transition:all .2s;text-decoration:none}
+    .ghost:hover{border-color:var(--p);color:var(--t)}
+    .chat-wrap{flex:1;max-width:800px;width:100%;margin:0 auto;padding:20px 20px 0;display:flex;flex-direction:column;gap:16px}
+    .chat-hdr{text-align:center;padding:20px 0 0}
+    .chat-hdr h1{font-size:1.8rem;font-weight:700;background:linear-gradient(135deg,#fff 40%,#a1a1aa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .chat-hdr p{font-size:.8rem;color:var(--m);margin-top:4px}
+    .api-banner{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 14px;font-size:.8rem;color:#fca5a5;display:none;margin-top:8px}
+    .messages{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0;overflow-y:auto;padding-bottom:8px}
+    .msg{display:flex;gap:10px;animation:up .3s ease}
+    .msg.user{flex-direction:row-reverse}
+    @keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+    .avg-bot{background:rgba(79,70,229,.2);border:1px solid rgba(79,70,229,.3)}.avg-user{background:rgba(255,255,255,.07)}
+    .bubble{max-width:78%;padding:12px 16px;border-radius:12px;font-size:.85rem;line-height:1.7}
+    .bubble.bot{background:var(--card);border:1px solid var(--b);border-radius:2px 12px 12px 12px}
+    .bubble.user{background:var(--p);border-radius:12px 2px 12px 12px}
+    .bubble strong{font-weight:700}
+    .typing{display:flex;gap:4px;padding:8px}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--m);animation:blink 1.2s infinite}
+    .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+    @keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+    .quick-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    .qb{padding:7px 14px;border:1px solid var(--b);border-radius:99px;background:transparent;color:var(--m);font-size:.75rem;cursor:pointer;transition:all .15s;font-family:inherit}
+    .qb:hover{border-color:var(--p);color:var(--t);background:rgba(79,70,229,.08)}
+    .input-row{position:sticky;bottom:0;background:rgba(9,9,11,.9);backdrop-filter:blur(20px);border-top:1px solid var(--b);padding:14px 20px;display:flex;gap:10px;max-width:800px;width:100%;margin:0 auto}
+    .chat-input{flex:1;padding:11px 16px;border:1px solid var(--b);border-radius:10px;background:rgba(0,0,0,.5);color:var(--t);font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit}
+    .chat-input:focus{border-color:var(--p)}
+    .send-btn{padding:11px 20px;border:none;border-radius:10px;background:var(--p);color:#fff;font-size:.9rem;cursor:pointer;transition:all .2s;font-family:inherit}
+    .send-btn:hover{background:var(--s)}
+    .send-btn:disabled{opacity:.5;cursor:not-allowed}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="logo">S.E.B.A. 🧠 AI Assistant</div>
+  <div class="nr"><a class="ghost" href="/home">← Home</a></div>
+</nav>
+
+<div class="chat-wrap">
+  <div class="chat-hdr">
+    <h1>💬 S.E.B.A. Assistant</h1>
+    <p>Your personal finance coach</p>
+    <div class="api-banner" id="apiBanner">⚠️ Gemini API key not set on the server. Add <strong>GEMINI_API_KEY=your_key</strong> to <code>SEBA/.env</code> and restart the backend.</div>
+  </div>
+  <div class="messages" id="messages">
+    <div class="msg">
+      <div class="avatar avg-bot">🧠</div>
+      <div class="bubble bot">
+        Hey! I'm your S.E.B.A. AI financial assistant 👋<br><br>
+        I've been trained on your spending data and can give you real, personalised insights. Ask me anything!
+        <div class="quick-btns">
+          <button class="qb" onclick="ask('How much did I spend this month?')">This month's spend</button>
+          <button class="qb" onclick="ask('What is my top spending category?')">Top category</button>
+          <button class="qb" onclick="ask('Am I spending impulsively?')">Impulse check</button>
+          <button class="qb" onclick="ask('How can I save more money?')">Saving tips</button>
+          <button class="qb" onclick="ask('Give me a financial health summary')">Health summary</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="input-row">
+  <input class="chat-input" id="chatInput" type="text" placeholder="Ask about your finances…" onkeydown="if(event.key==='Enter'&&!event.shiftKey)sendMsg()">
+  <button class="send-btn" id="sendBtn" onclick="sendMsg()">Send →</button>
+</div>
+
+<script>
+let _sess; try { _sess = JSON.parse(localStorage.getItem('sebaUser') || 'null'); } catch(e) { _sess = null; }
+if (!_sess || !_sess.user_id) { location.replace('/login'); throw new Error('No session'); }
+const U = _sess.user_id;
+const fmt=(n,d=0)=>new Intl.NumberFormat('en-IN',{maximumFractionDigits:d}).format(n||0);
+let conversationHistory=[];
+let userContext='';
+
+async function buildContext(){
+  try{
+    const [dash,pat]=await Promise.all([
+      fetch(`/analytics/dashboard/${U}`).then(r=>r.json()).catch(()=>null),
+      fetch(`/analytics/patterns/${U}`).then(r=>r.json()).catch(()=>null),
+    ]);
+    if(!dash) return 'No transaction data available yet.';
+    const cats=Object.entries(dash.by_category||{}).sort(([,a],[,b])=>b-a).slice(0,5).map(([k,v])=>`${k}: ₹${fmt(v)}`).join(', ');
+    const months=Object.entries(dash.monthly_breakdown||{}).sort(([a],[b])=>b.localeCompare(a)).slice(0,3).map(([k,v])=>`${k}: ₹${fmt(v)}`).join(', ');
+    const today=new Date().toISOString().split('T')[0];
+    const thisMonth=today.slice(0,7);
+    const monthSpend=dash.monthly_breakdown?.[thisMonth]||0;
+    let ctx=`User's Financial Summary as of ${today}:\n`;
+    ctx+=`- Total spent (all-time): ₹${fmt(dash.total_spent)}\n`;
+    ctx+=`- This month (${thisMonth}): ₹${fmt(monthSpend)}\n`;
+    ctx+=`- Total transactions: ${dash.transaction_count}\n`;
+    ctx+=`- Impulsive purchases: ${dash.impulsive_count} (₹${fmt(dash.impulsive_total)} total)\n`;
+    ctx+=`- Top categories: ${cats||'None yet'}\n`;
+    ctx+=`- Recent monthly breakdown: ${months||'None yet'}\n`;
+    if(pat){
+      ctx+=`- Weekend risk pattern: ${pat.weekend_risk?'YES ('+Math.round((pat.weekend_avg_per_tx/pat.weekday_avg_per_tx-1)*100)+'% more on weekends)':'No'}\n`;
+      ctx+=`- Top impulse category: ${pat.top_impulsive_category||'None'}\n`;
+    }
+    return ctx;
+  }catch(e){return 'Error fetching user data.';}
+}
+
+function addMsg(html,role='bot'){
+  const wrap=document.getElementById('messages');
+  const div=document.createElement('div');
+  div.className='msg'+(role==='user'?' user':'');
+  div.innerHTML=`<div class="avatar ${role==='bot'?'avg-bot':'avg-user'}">${role==='bot'?'🧠':'👤'}</div><div class="bubble ${role}">${html}</div>`;
+  wrap.appendChild(div);
+  wrap.scrollTop=wrap.scrollHeight;
+}
+
+function showTyping(){
+  const wrap=document.getElementById('messages');
+  const div=document.createElement('div');div.id='typing';div.className='msg';
+  div.innerHTML='<div class="avatar avg-bot">🧠</div><div class="bubble bot"><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  wrap.appendChild(div);wrap.scrollTop=wrap.scrollHeight;
+}
+function hideTyping(){const el=document.getElementById('typing');if(el)el.remove();}
+
+function ask(q){document.getElementById('chatInput').value=q;sendMsg();}
+
+async function sendMsg(){
+  const inp=document.getElementById('chatInput');const q=inp.value.trim();if(!q)return;
+  const btn=document.getElementById('sendBtn');
+  inp.value='';btn.disabled=true;
+  addMsg(q,'user');
+  conversationHistory.push({role:'user',parts:[{text:q}]});
+  showTyping();
+
+  if(!userContext) userContext=await buildContext();
+
+  const systemInstruction={parts:[{text:`You are S.E.B.A., a sharp, friendly, and realistic AI financial assistant for an Indian user. You have access to their real expense data shown below. Always give specific, actionable, and realistic advice. Use Indian Rupees (₹). Be conversational but insightful. Format responses clearly with bullet points when listing multiple items. Never make up numbers — only cite figures from the data provided.\n\n${userContext}`}]};
+
+  try{
+    const payload={system_instruction:systemInstruction,contents:conversationHistory};
+    const resp=await fetch('/chat/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await resp.json();
+    hideTyping();
+
+    if(resp.status===503&&data.detail?.includes('Gemini API key')){
+      document.getElementById('apiBanner').style.display='block';
+      addMsg('⚠️ The Gemini API key is not configured on the server. Please add <strong>GEMINI_API_KEY=your_key</strong> to <code>SEBA/.env</code> and restart the backend.','bot');
+    }else if(resp.ok){
+      const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received.';
+      const html=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>').replace(/^\s*[-•]\s*/gm,'• ');
+      addMsg(html,'bot');
+      conversationHistory.push({role:'model',parts:[{text}]});
+    }else{
+      addMsg('Sorry, I had trouble getting a response. Please try again.','bot');
+    }
+  }catch(e){
+    hideTyping();
+    addMsg('Network error. Make sure the backend server is running.','bot');
+  }finally{btn.disabled=false;}
+}
+
+// Trim history to last 10 turns to avoid token limits
+function trimHistory(){if(conversationHistory.length>20)conversationHistory=conversationHistory.slice(-20);}
+const origSend=sendMsg;
+</script>
+</body>
+</html>

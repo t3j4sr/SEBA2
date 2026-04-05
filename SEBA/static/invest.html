@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.E.B.A. – Investments</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#08080f;--surface:#0f0f1a;--card:#12121e;--border:#1c1c2e;--accent:#6366f1;--text:#f1f1fb;--muted:#6b6b90;--success:#22c55e;--green:#4ade80;--warn:#f59e0b;--danger:#e03e5c}
+    html{overflow-y:scroll}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    /* remove all scrollbars */
+    ::-webkit-scrollbar{display:none}
+    *{scrollbar-width:none;-ms-overflow-style:none}
+    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2.5rem;background:rgba(8,8,15,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+    .logo{font-size:1.1rem;font-weight:700}.logo span{color:var(--accent)}.tagline{font-size:.68rem;color:var(--muted)}
+    .nav-links{display:flex;gap:.5rem;align-items:center}
+    .nav-link{display:flex;align-items:center;gap:.4rem;padding:.42rem .9rem;border-radius:8px;font-size:.8rem;font-weight:500;color:var(--muted);border:1px solid transparent;background:none;transition:all .2s;text-decoration:none}
+    .nav-link:hover{color:var(--text);background:var(--surface);border-color:var(--border)}
+    .nav-link.health{background:rgba(236,72,153,.12);border-color:rgba(236,72,153,.3);color:#f472b6}
+    .nav-link.health:hover{background:rgba(236,72,153,.2);border-color:#f472b6;color:#fff}
+    main{max-width:1020px;margin:0 auto;padding:2.8rem 1.5rem 5rem}
+    .page-title{font-size:1.5rem;font-weight:800;margin-bottom:.35rem;background:linear-gradient(135deg,#fff 60%,#8b8be8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .page-sub{font-size:.85rem;color:var(--muted);margin-bottom:1rem}
+    .section-label{font-size:.65rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);margin:.8rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+
+    .surplus-banner{background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.18);border-radius:14px;padding:1rem 1.4rem;margin-bottom:1.8rem;display:flex;align-items:center;gap:1.5rem}
+    .sb-num .sv{font-size:1.7rem;font-weight:800;color:var(--green)}
+    .sb-num .sl{font-size:.68rem;color:var(--muted)}
+    .sb-adv{font-size:.8rem;color:var(--muted);line-height:1.6}
+    .sb-adv strong{color:var(--text)}
+
+    /* ── Investment cards ── */
+    .invest-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:2.8rem}
+    .ic{position:relative;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.4rem;display:flex;flex-direction:column;gap:.5rem;text-decoration:none;color:var(--text);transition:border-color .22s,transform .22s,box-shadow .22s;overflow:hidden}
+    .ic::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 15%,rgba(99,102,241,.1) 0%,transparent 60%);pointer-events:none}
+    .ic:hover{border-color:rgba(99,102,241,.55);transform:translateY(-5px);box-shadow:0 12px 40px rgba(99,102,241,.13)}
+    .ic-tag{font-size:.6rem;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted)}
+    .ic-icon{font-size:1.7rem;display:block}
+    .ic-name{font-size:.93rem;font-weight:700;line-height:1.3}
+    .ic-return{font-size:1.5rem;font-weight:800;color:var(--green)}
+    .ic-sub{font-size:.68rem;color:var(--muted)}
+    .ic-rows{border-top:1px solid var(--border);padding-top:.65rem;display:flex;flex-direction:column;gap:.3rem;margin-top:auto}
+    .ic-row{display:flex;justify-content:space-between;font-size:.74rem}
+    .ick{color:var(--muted)}.icv{font-weight:600;text-align:right}
+    .ic-why{background:rgba(99,102,241,.07);border-radius:8px;padding:.55rem .65rem;font-size:.72rem;color:var(--muted);line-height:1.5;margin-top:.4rem}
+    .ic-why strong{color:var(--text)}
+    .ic-link{display:flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--accent);font-weight:600;margin-top:.5rem;transition:gap .18s}
+    .ic-link::after{content:'→'}
+    .ic:hover .ic-link{gap:.5rem}
+
+    /* ── SIP Calculator ── */
+    .sip-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem}
+    .sip-card h3{font-size:1rem;font-weight:700;margin-bottom:1.5rem;display:flex;align-items:center;gap:.5rem}
+    .sip-inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-bottom:1.5rem}
+    .si{display:flex;flex-direction:column;gap:.45rem}
+    .si label{font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+    .si-input-wrap{display:flex;align-items:center;background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s}
+    .si-input-wrap:focus-within{border-color:var(--accent)}
+    .si-prefix{padding:.7rem .8rem;font-size:.85rem;color:var(--muted);border-right:1px solid var(--border);font-weight:600;background:var(--bg);flex-shrink:0}
+    .si-input{flex:1;padding:.7rem .9rem;background:transparent;border:none;color:var(--text);font-size:.92rem;font-family:inherit;font-weight:600;outline:none;min-width:0}
+    .si-input::-webkit-outer-spin-button,.si-input::-webkit-inner-spin-button{-webkit-appearance:none}
+    .si-input[type=number]{-moz-appearance:textfield;appearance:textfield}
+    .si-suffix{padding:.7rem .8rem;font-size:.85rem;color:var(--muted);border-left:1px solid var(--border);font-weight:600;background:var(--bg);flex-shrink:0}
+
+    .sip-result{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin-bottom:1.3rem}
+    .sr{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center}
+    .sr .sv{font-size:1.2rem;font-weight:800;margin-bottom:.2rem}
+    .sr .sl{font-size:.68rem;color:var(--muted)}
+
+    .sip-bar-wrap{margin-top:.2rem}
+    .sip-bar-labels{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:.5rem}
+    .sip-bar-bg{background:var(--border);border-radius:99px;height:8px;overflow:hidden}
+    .sip-bar-fill{height:8px;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width .6s ease}
+    .sip-note{font-size:.72rem;color:var(--muted);text-align:center;margin-top:1rem;line-height:1.5}
+
+    @media(max-width:820px){
+      .invest-grid{grid-template-columns:1fr 1fr}
+      .sip-inputs{grid-template-columns:1fr}
+      .sip-result{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:500px){.invest-grid{grid-template-columns:1fr}.sip-result{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <div><div class="logo">S.E.B.A. <span>💬</span></div><div class="tagline">Smart Expense Behaviour Analyser</div></div>
+  <div class="nav-links">
+    <a href="/predictions" class="nav-link">📅 Predictions</a>
+    <a href="/analytics" class="nav-link">📊 Analytics</a>
+
+    <a href="/home" class="nav-link">← Home</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-title">📈 Investments</div>
+  <p class="page-sub">Click any option to read more or start investing. Use the SIP calculator below to plan.</p>
+
+  <div class="surplus-banner">
+    <div class="sb-num"><div class="sv" id="surplusVal">—</div><div class="sl">Est. Monthly Surplus</div></div>
+    <div class="sb-adv" id="surplusAdv">Connect to backend to see your investable surplus.</div>
+  </div>
+
+  <div class="section-label">Investment Options — Click to Explore & Invest</div>
+  <div class="invest-grid">
+
+    <a class="ic" href="https://groww.in/p/index-funds" target="_blank" rel="noopener">
+      <div class="ic-tag">Equity MF</div>
+      <span class="ic-icon">📊</span>
+      <div class="ic-name">Nifty 50 Index Fund</div>
+      <div class="ic-return">12–14%</div>
+      <div class="ic-sub">Expected Annual Return</div>
+      <div class="ic-rows">
+        <div class="ic-row"><span class="ick">Risk</span><span class="icv">Moderate</span></div>
+        <div class="ic-row"><span class="ick">Horizon</span><span class="icv">5+ yrs</span></div>
+        <div class="ic-row"><span class="ick">Min SIP</span><span class="icv">₹500/mo</span></div>
+      </div>
+      <div class="ic-why">💡 <strong>Why:</strong> Broadest market exposure, lowest cost.</div>
+      <span class="ic-link">Invest on Groww</span>
+    </a>
+
+    <a class="ic" href="https://www.indiapost.gov.in/Financial/pages/content/ppf.aspx" target="_blank" rel="noopener">
+      <div class="ic-tag">Debt / Tax Saving</div>
+      <span class="ic-icon">🏦</span>
+      <div class="ic-name">Public Provident Fund (PPF)</div>
+      <div class="ic-return">7.1%</div>
+      <div class="ic-sub">Expected Annual Return</div>
+      <div class="ic-rows">
+        <div class="ic-row"><span class="ick">Risk</span><span class="icv">Very Low</span></div>
+        <div class="ic-row"><span class="ick">Horizon</span><span class="icv">15 yrs</span></div>
+        <div class="ic-row"><span class="ick">Min/yr</span><span class="icv">₹500</span></div>
+      </div>
+      <div class="ic-why">💡 <strong>Why:</strong> EEE tax status — invest, grow, withdraw all tax-free.</div>
+      <span class="ic-link">Open via India Post</span>
+    </a>
+
+    <a class="ic" href="https://enps.nsdl.com/eNPS/NationalPensionSystem.html" target="_blank" rel="noopener">
+      <div class="ic-tag">Retirement</div>
+      <span class="ic-icon">🏛️</span>
+      <div class="ic-name">NPS — National Pension System</div>
+      <div class="ic-return">10–12%</div>
+      <div class="ic-sub">Expected Annual Return</div>
+      <div class="ic-rows">
+        <div class="ic-row"><span class="ick">Risk</span><span class="icv">Low–Mod</span></div>
+        <div class="ic-row"><span class="ick">Tax Benefit</span><span class="icv">₹2L deduction</span></div>
+        <div class="ic-row"><span class="ick">Min</span><span class="icv">₹500/mo</span></div>
+      </div>
+      <div class="ic-why">💡 <strong>Why:</strong> Best tax instrument with market-linked returns.</div>
+      <span class="ic-link">Open via eNPS</span>
+    </a>
+
+    <a class="ic" href="https://www.rbi.org.in/Scripts/FAQView.aspx?Id=80" target="_blank" rel="noopener">
+      <div class="ic-tag">Commodity</div>
+      <span class="ic-icon">🥇</span>
+      <div class="ic-name">Sovereign Gold Bonds</div>
+      <div class="ic-return">8–9%</div>
+      <div class="ic-sub">Expected Annual Return</div>
+      <div class="ic-rows">
+        <div class="ic-row"><span class="ick">Risk</span><span class="icv">Low–Mod</span></div>
+        <div class="ic-row"><span class="ick">Horizon</span><span class="icv">8 yrs</span></div>
+        <div class="ic-row"><span class="ick">Min</span><span class="icv">1g ≈ ₹7,500</span></div>
+      </div>
+      <div class="ic-why">💡 <strong>Why:</strong> Gold returns + 2.5% interest p.a. Tax-free on maturity.</div>
+      <span class="ic-link">RBI SGB Info</span>
+    </a>
+
+    <a class="ic" href="https://www.etmoney.com/mutual-funds/liquid" target="_blank" rel="noopener">
+      <div class="ic-tag">Liquid / Emergency</div>
+      <span class="ic-icon">💧</span>
+      <div class="ic-name">Liquid Mutual Fund</div>
+      <div class="ic-return">6.5–7%</div>
+      <div class="ic-sub">Expected Annual Return</div>
+      <div class="ic-rows">
+        <div class="ic-row"><span class="ick">Risk</span><span class="icv">Very Low</span></div>
+        <div class="ic-row"><span class="ick">Horizon</span><span class="icv">Any time</span></div>
+        <div class="ic-row"><span class="ick">Min Lump Sum</span><span class="icv">₹1,000</span></div>
+      </div>
+      <div class="ic-why">💡 <strong>Why:</strong> Better than savings account. Withdraw in 1 business day.</div>
+      <span class="ic-link">Invest on ET Money</span>
+    </a>
+
+    <a class="ic" href="https://www.etmoney.com/mutual-funds/mid-cap" target="_blank" rel="noopener">
+      <div class="ic-tag">Mid-Cap Growth</div>
+      <span class="ic-icon">📈</span>
+      <div class="ic-name">Mid-Cap Index Fund</div>
+      <div class="ic-return">14–18%</div>
+      <div class="ic-sub">Expected Annual Return</div>
+      <div class="ic-rows">
+        <div class="ic-row"><span class="ick">Risk</span><span class="icv">High</span></div>
+        <div class="ic-row"><span class="ick">Horizon</span><span class="icv">7+ yrs</span></div>
+        <div class="ic-row"><span class="ick">Min SIP</span><span class="icv">₹1,000/mo</span></div>
+      </div>
+      <div class="ic-why">💡 <strong>Why:</strong> Outperformed large-cap over 10yr cycles. High risk, high reward.</div>
+      <span class="ic-link">Invest on ET Money</span>
+    </a>
+
+  </div>
+
+  <!-- SIP Calculator -->
+  <div class="section-label">SIP Calculator — Plan Your Wealth</div>
+  <div class="sip-card">
+    <h3>📐 SIP (Systematic Investment Plan) Calculator</h3>
+    <div class="sip-inputs">
+      <div class="si">
+        <label>Monthly SIP Amount</label>
+        <div class="si-input-wrap">
+          <span class="si-prefix">₹</span>
+          <input class="si-input" type="number" id="sipAmt" value="5000" min="500" max="500000" oninput="calcSIP()">
+        </div>
+      </div>
+      <div class="si">
+        <label>Expected Annual Return</label>
+        <div class="si-input-wrap">
+          <input class="si-input" type="number" id="sipRate" value="12" min="1" max="30" step="0.5" oninput="calcSIP()">
+          <span class="si-suffix">%</span>
+        </div>
+      </div>
+      <div class="si">
+        <label>Investment Period</label>
+        <div class="si-input-wrap">
+          <input class="si-input" type="number" id="sipYrs" value="10" min="1" max="40" oninput="calcSIP()">
+          <span class="si-suffix">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sip-result">
+      <div class="sr"><div class="sv" id="sipWealth" style="color:var(--green)">—</div><div class="sl">Total Wealth</div></div>
+      <div class="sr"><div class="sv" id="sipInvested" style="color:var(--accent)">—</div><div class="sl">Amount Invested</div></div>
+      <div class="sr"><div class="sv" id="sipGains" style="color:var(--warn)">—</div><div class="sl">Estimated Gains</div></div>
+      <div class="sr"><div class="sv" id="sipMulti" style="color:var(--success)">—</div><div class="sl">Money Multiplier</div></div>
+    </div>
+
+    <div class="sip-bar-wrap">
+      <div class="sip-bar-labels"><span>Invested</span><span id="sipPct">—</span></div>
+      <div class="sip-bar-bg"><div class="sip-bar-fill" id="sipBar" style="width:50%"></div></div>
+    </div>
+    <div class="sip-note">Estimates assume constant returns. Actual mutual fund returns vary. Past performance is not a guarantee of future results.</div>
+  </div>
+</main>
+
+<script>
+let _sess; try { _sess = JSON.parse(localStorage.getItem('sebaUser') || 'null'); } catch(e) { _sess = null; }
+if (!_sess || !_sess.user_id) { location.replace('/login'); throw new Error('No session'); }
+const U = _sess.user_id;
+
+function fmt(n){
+  if(n>=10000000) return '₹'+(n/10000000).toFixed(2)+' Cr';
+  if(n>=100000) return '₹'+(n/100000).toFixed(2)+' L';
+  return '₹'+Math.round(n).toLocaleString('en-IN');
+}
+
+function calcSIP(){
+  const P=Math.max(0,+document.getElementById('sipAmt').value||0);
+  const r=Math.max(0,+document.getElementById('sipRate').value||0)/100/12;
+  const n=Math.max(1,+document.getElementById('sipYrs').value||1)*12;
+  const maturity=r>0?P*((Math.pow(1+r,n)-1)/r)*(1+r):P*n;
+  const invested=P*n;
+  const gains=maturity-invested;
+  const multi=(invested>0?(maturity/invested):1).toFixed(2);
+  const pct=maturity>0?Math.round((gains/maturity)*100):0;
+  document.getElementById('sipWealth').textContent=fmt(maturity);
+  document.getElementById('sipInvested').textContent=fmt(invested);
+  document.getElementById('sipGains').textContent=fmt(gains);
+  document.getElementById('sipMulti').textContent=multi+'×';
+  document.getElementById('sipPct').textContent=pct+'% returns on maturity';
+  document.getElementById('sipBar').style.width=Math.min(95,Math.max(5,pct))+'%';
+}
+
+async function loadSurplus(){
+  try{
+    const d=await fetch(`/analytics/dashboard/${U}`).then(r=>r.json());
+    const months=Object.values(d.monthly_breakdown||{});
+    const avg=months.length?months.reduce((a,b)=>a+b,0)/months.length:0;
+    if(avg>0){
+      const surplus=Math.max(0,50000-avg);
+      document.getElementById('surplusVal').textContent='₹'+Math.round(surplus).toLocaleString('en-IN');
+      document.getElementById('surplusAdv').innerHTML=`Avg monthly spend: <strong>₹${Math.round(avg).toLocaleString('en-IN')}</strong>. Even ₹1,000/mo compounded at 12% for 20 years = <strong>₹9.2L</strong>. Your suggested SIP below.`;
+      const suggested=Math.max(500,Math.round(surplus/500)*500);
+      document.getElementById('sipAmt').value=Math.min(suggested,500000);
+      calcSIP();
+    }
+  }catch(e){}
+}
+
+loadSurplus();
+calcSIP();
+</script>
+<style>.chat-fab{position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;border:none;box-shadow:0 4px 24px rgba(99,102,241,.4);transition:transform .2s,box-shadow .2s;z-index:9999}.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(99,102,241,.6)}</style>
+<button class="chat-fab" title="AI Chat" onclick="location.href='/chat'">💬</button>
+<script src="/static/chat-widget.js"></script></body>
+</html>

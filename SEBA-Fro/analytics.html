@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S.E.B.A. - Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --secondary: #6366f1;
+      --bg-dark: #09090b;
+      --card-bg: rgba(14, 14, 17, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.05);
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', sans-serif; background: var(--bg-dark); background-image: radial-gradient(ellipse at top center, rgba(79, 70, 229, 0.15) 0%, transparent 60%); color: var(--text); min-height: 100vh; padding: 40px 20px; position: relative; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
+    
+    .container { max-width: 1000px; width: 100%; display: flex; flex-direction: column; gap: 30px; z-index: 10; }
+
+    .glass { background: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 12px; padding: 30px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); }
+    h2, h3 { font-weight: 500; margin-bottom: 20px; }
+    
+    .header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .header-row h1 { font-weight: 600; font-size: 2.2rem; background: linear-gradient(135deg, white, #a1a1aa); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 0; letter-spacing: -0.5px;}
+    .back-link { color: var(--text-muted); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.2s ease; }
+    .back-link:hover { color: var(--text); }
+
+    /* Charts Area */
+    .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .chart-card { height: 320px; display: flex; align-items: center; justify-content: center; padding: 15px; }
+    .chart-card.full-width { grid-column: span 2; }
+
+    /* Insights Wrapper */
+    .insights { display: flex; flex-direction: column; gap: 15px; }
+    .insight { background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 18px 20px; border-radius: 12px; display: flex; align-items: center; gap: 15px; font-size: 1.05rem; animation: slideIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .insight.warning { background: rgba(245, 158, 11, 0.1); border-color: #f59e0b; }
+    .insight.good { background: rgba(16, 185, 129, 0.1); border-color: #10b981; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+
+    @media (max-width: 800px) {
+      .charts-grid { grid-template-columns: 1fr; }
+      .chart-card.full-width { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="react-particles-root"></div>
+  <script type="module" src="/src/background.tsx"></script>
+
+  <div class="container">
+    <div class="header-row">
+      <h1>Analytics & Insights</h1>
+      <a href="index.html" class="back-link">← Back to Dashboard</a>
+    </div>
+    
+    <div id="react-dashboard-overview-root"></div>
+
+    <div class="charts-grid">
+      <div class="glass chart-card full-width">
+        <canvas id="lineChart"></canvas>
+      </div>
+      <div class="glass chart-card">
+        <canvas id="pieChart"></canvas>
+      </div>
+      <div class="glass chart-card">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+    
+    <div class="glass">
+      <h3>Pattern Observance & Insights</h3>
+      <div class="insights" id="insights">
+        <p style="color: var(--text-muted);">Loading patterns...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Outfit', sans-serif";
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    
+    let lineChart, pieChart, barChart;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      let raw = localStorage.getItem('seba_transactions');
+      let allTransactions = raw ? JSON.parse(raw) : [];
+      let expenses = allTransactions.filter(e => e.type === 'expense');
+
+      generateInsights(expenses, allTransactions);
+      updateCharts(expenses);
+    });
+
+    function generateInsights(expenses, all) {
+      let insightsDiv = document.getElementById("insights");
+      insightsDiv.innerHTML = "";
+
+      if (all.length === 0) {
+        insightsDiv.innerHTML = `<p style="color: var(--text-muted);">No transactions recorded yet.</p>`;
+        return;
+      }
+
+      let lateNight = expenses.filter(e => {
+        let hour = parseInt(e.time.split(":")[0]);
+        return hour >= 22 || hour <= 4;
+      });
+
+      if (lateNight.length >= 2) {
+        insightsDiv.innerHTML += `
+          <div class="insight">
+            <span style="font-size: 1.5rem">⚠️</span> 
+            <div>
+              <strong>Late Night Spending Detected</strong><br>
+              <span style="font-size: 0.9rem; opacity: 0.8;">You have multiple expenses during late hours. Watch out for impulse purchases!</span>
+            </div>
+          </div>`;
+      }
+
+      if (expenses.length > 5) {
+        insightsDiv.innerHTML += `
+          <div class="insight warning">
+            <span style="font-size: 1.5rem">💸</span> 
+            <div>
+              <strong>High Expense Volume</strong><br>
+              <span style="font-size: 0.9rem; opacity: 0.8;">You have heavily frequent spending recorded. Group your purchases to track them efficiently.</span>
+            </div>
+          </div>`;
+      }
+      
+      let income = all.filter(t => t.type === 'income').reduce((a,b) => a + b.amount, 0);
+      let spent = expenses.reduce((a,b) => a + b.amount, 0);
+      if (income > 0 && spent < income * 0.5) {
+        insightsDiv.innerHTML += `
+          <div class="insight good">
+            <span style="font-size: 1.5rem">🌱</span> 
+            <div>
+              <strong>Healthy Savings Ratio</strong><br>
+              <span style="font-size: 0.9rem; opacity: 0.8;">You are spending less than 50% of your income. Keep up the good momentum!</span>
+            </div>
+          </div>`;
+      }
+
+      if (insightsDiv.innerHTML === "") {
+        insightsDiv.innerHTML = `<p style="color: var(--text-muted);">No significant patterns detected yet. Keep logging your inputs to generate insights.</p>`;
+      }
+    }
+
+    function updateCharts(expenses) {
+      if (expenses.length === 0) {
+        document.querySelector('.charts-grid').style.display = 'none';
+        return;
+      }
+
+      let categories = {};
+      expenses.forEach(e => {
+        categories[e.category] = (categories[e.category] || 0) + e.amount;
+      });
+
+      let amounts = expenses.map(e => e.amount);
+      let labels = expenses.map((e, i) => "Exp " + (i + 1));
+
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } }
+      };
+
+      // 1. Line Chart
+      let ctxLine = document.getElementById("lineChart").getContext('2d');
+      let gradientLine = ctxLine.createLinearGradient(0, 0, 0, 400);
+      gradientLine.addColorStop(0, 'rgba(79, 70, 229, 0.5)');
+      gradientLine.addColorStop(1, 'rgba(79, 70, 229, 0.0)');
+
+      lineChart = new Chart(ctxLine, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            data: amounts, borderColor: '#4f46e5', backgroundColor: gradientLine,
+            borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#6366f1', pointRadius: 4, pointHoverRadius: 6
+          }]
+        },
+        options: {
+          ...commonOptions,
+          scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }, x: { grid: { display: false } } }
+        }
+      });
+
+      // 2. Pie Chart
+      pieChart = new Chart(document.getElementById("pieChart"), {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(categories),
+          datasets: [{
+            data: Object.values(categories),
+            backgroundColor: ['#4f46e5', '#6366f1', '#3b82f6', '#10b981', '#f43f5e'],
+            borderWidth: 0, hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '70%',
+          plugins: { legend: { position: 'right', labels: { color: '#94a3b8', padding: 20, usePointStyle: true } } }
+        }
+      });
+
+      // 3. Bar Chart
+      barChart = new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+          labels: Object.keys(categories),
+          datasets: [{
+            data: Object.values(categories),
+            backgroundColor: 'rgba(79, 70, 229, 0.8)',
+            borderRadius: 6, hoverBackgroundColor: '#6366f1'
+          }]
+        },
+        options: {
+          ...commonOptions,
+          scales: { y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true }, x: { grid: { display: false } } }
+        }
+      });
+    }
+  </script>
+  <!-- Vite module script -->
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>S.E.B.A. – Spending Predictions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#08080f;--surface:#0f0f1a;--card:#12121e;--border:#1c1c2e;--accent:#6366f1;--text:#f1f1fb;--muted:#6b6b90;--danger:#e03e5c;--success:#22c55e;--warn:#f59e0b}
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:.9rem 2.5rem;background:rgba(8,8,15,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+    .logo{font-size:1.1rem;font-weight:700}.logo span{color:var(--accent)}.tagline{font-size:.68rem;color:var(--muted)}
+    .nav-links{display:flex;gap:.5rem;align-items:center}
+    .nav-link{display:flex;align-items:center;gap:.4rem;padding:.42rem .9rem;border-radius:8px;font-size:.8rem;font-weight:500;color:var(--muted);border:1px solid transparent;background:none;transition:all .2s;text-decoration:none}
+    .nav-link:hover,.nav-link.active{color:var(--text);background:var(--surface);border-color:var(--border)}
+    .nav-link.health{background:rgba(236,72,153,.12);border-color:rgba(236,72,153,.3);color:#f472b6}
+    .nav-link.health:hover{background:rgba(236,72,153,.2);border-color:#f472b6;color:#fff}
+    main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 6rem}
+    .page-title{font-size:1.5rem;font-weight:800;margin-bottom:.35rem;background:linear-gradient(135deg,#fff 60%,#8b8be8);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .page-sub{font-size:.83rem;color:var(--muted);margin-bottom:1.6rem}
+
+    /* ── Main two-column layout ── */
+    .pred-layout{display:grid;grid-template-columns:1fr 340px;gap:1.2rem;align-items:start;margin-bottom:1.5rem}
+
+    /* ── Calendar card ── */
+    .cal-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:1.8rem 2rem}
+    .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+    .cal-month{font-size:1.3rem;font-weight:800}
+    .cal-nav{background:none;border:1px solid var(--border);border-radius:9px;padding:.35rem .85rem;color:var(--muted);cursor:pointer;font-size:1rem;transition:all .18s}
+    .cal-nav:hover{color:var(--text);border-color:var(--accent)}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+    .cal-day-name{text-align:center;font-size:.62rem;font-weight:700;color:var(--muted);padding:.45rem 0;text-transform:uppercase;letter-spacing:.8px}
+    .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:11px;font-size:.9rem;font-weight:500;cursor:default;position:relative;border:2px solid transparent;transition:all .18s;user-select:none}
+    .cal-day.has-risk{cursor:pointer}
+    .cal-day.has-risk:hover{transform:scale(1.1);z-index:2;box-shadow:0 4px 18px rgba(0,0,0,.4)}
+    .cal-day.today{border-color:var(--accent)!important;color:var(--accent);font-weight:800}
+    .cal-day.high-risk{background:rgba(224,62,92,.18);color:var(--danger);font-weight:700;border-color:rgba(224,62,92,.35)}
+    .cal-day.medium-risk{background:rgba(245,158,11,.13);color:var(--warn);font-weight:600;border-color:rgba(245,158,11,.3)}
+    .cal-day.weekend-risk{background:rgba(99,102,241,.1);color:#a5b4fc}
+    .cal-day.other-month{opacity:.18;cursor:default}
+    .cal-day.selected{outline:2px solid #fff;outline-offset:1px}
+    .dot{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%}
+    .legend{display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.3rem;padding-top:1.1rem;border-top:1px solid var(--border)}
+    .leg-item{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--muted)}
+    .leg-dot{width:10px;height:10px;border-radius:50%}
+
+    /* ── Right side panel ── */
+    .right-col{display:flex;flex-direction:column;gap:1.2rem}
+
+    /* Detail panel */
+    .detail-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.4rem;min-height:280px;transition:border-color .25s}
+    .detail-card.active{border-color:rgba(99,102,241,.4)}
+    .detail-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:200px;color:var(--muted);text-align:center;gap:.5rem}
+    .detail-placeholder .ph-icon{font-size:2.2rem;opacity:.4}
+    .detail-placeholder .ph-text{font-size:.8rem}
+    .dp-header{display:flex;align-items:flex-start;gap:.9rem;margin-bottom:1.1rem}
+    .dp-date-badge{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.5rem .7rem;text-align:center;min-width:48px;flex-shrink:0}
+    .dp-date-badge .day{font-size:1.4rem;font-weight:800;line-height:1}
+    .dp-date-badge .mon{font-size:.62rem;color:var(--muted);text-transform:uppercase}
+    .dp-title{font-size:1rem;font-weight:700;line-height:1.3}
+    .dp-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.22rem .7rem;border-radius:99px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:.35rem}
+    .dp-pill.high{background:rgba(224,62,92,.18);color:var(--danger)}
+    .dp-pill.medium{background:rgba(245,158,11,.15);color:var(--warn)}
+    .dp-pill.weekend{background:rgba(99,102,241,.15);color:#a5b4fc}
+    .dp-reasons{list-style:none;display:flex;flex-direction:column;gap:.55rem;margin-bottom:.9rem}
+    .dp-reasons li{display:flex;gap:.65rem;align-items:flex-start;font-size:.8rem;line-height:1.5;color:var(--muted)}
+    .dp-ri{font-size:1rem;flex-shrink:0;margin-top:.05rem}
+    .dp-reasons li strong{color:var(--text)}
+    .dp-tip{background:rgba(99,102,241,.07);border-radius:10px;padding:.75rem .9rem;font-size:.76rem;color:var(--muted);line-height:1.55}
+    .dp-tip strong{color:var(--text)}
+
+    /* Upcoming list */
+    .upcoming-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.2rem}
+    .card-label{font-size:.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+    .pred-item{display:flex;align-items:flex-start;gap:.7rem;padding:.65rem 0;border-bottom:1px solid var(--border)}
+    .pred-item:last-child{border-bottom:none}
+    .pred-date-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.35rem .55rem;text-align:center;min-width:40px;flex-shrink:0}
+    .pred-date-box .day{font-size:1rem;font-weight:700;line-height:1}
+    .pred-date-box .mon{font-size:.58rem;color:var(--muted);text-transform:uppercase}
+    .pred-info .pt{font-size:.82rem;font-weight:600;margin-bottom:.1rem}
+    .pred-info .pd{font-size:.72rem;color:var(--muted)}
+    .pred-icon{margin-left:auto;font-size:.85rem;flex-shrink:0}
+
+    /* Insights card */
+    .insight-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.2rem}
+    .ins{background:var(--surface);border-radius:10px;padding:.8rem .9rem;margin-bottom:.55rem}
+    .ins:last-child{margin-bottom:0}
+    .ins-title{font-size:.83rem;font-weight:600;margin-bottom:.2rem}
+    .ins-body{font-size:.75rem;color:var(--muted);line-height:1.5}
+
+    @media(max-width:900px){.pred-layout{grid-template-columns:1fr}}
+    @media(max-width:600px){.cal-day{font-size:.78rem}}
+  </style>
+</head>
+<body>
+<nav>
+  <div><div class="logo">S.E.B.A. <span>💬</span></div><div class="tagline">Smart Expense Behaviour Analyser</div></div>
+  <div class="nav-links">
+    <a href="/predictions" class="nav-link active">📅 Predictions</a>
+    <a href="/analytics" class="nav-link">📊 Analytics</a>
+
+    <a href="/home" class="nav-link">← Home</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-title">🔮 Spending Predictions</div>
+  <p class="page-sub">Click any highlighted date — details appear on the right.</p>
+
+  <div class="pred-layout">
+    <!-- LEFT: Calendar -->
+    <div class="cal-card">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+        <span class="cal-month" id="calTitle"></span>
+        <button class="cal-nav" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid">
+        <div class="cal-day-name">Mon</div><div class="cal-day-name">Tue</div><div class="cal-day-name">Wed</div>
+        <div class="cal-day-name">Thu</div><div class="cal-day-name">Fri</div>
+        <div class="cal-day-name" style="color:#a5b4fc">Sat</div>
+        <div class="cal-day-name" style="color:#a5b4fc">Sun</div>
+      </div>
+      <div class="legend">
+        <div class="leg-item"><div class="leg-dot" style="background:var(--danger)"></div>High Risk</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--warn)"></div>Medium Risk</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#a5b4fc"></div>Weekend</div>
+        <div class="leg-item"><div class="leg-dot" style="background:var(--accent);border:2px solid var(--accent)"></div>Today</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Stacked panels -->
+    <div class="right-col">
+      <!-- Detail card -->
+      <div class="detail-card" id="detailCard">
+        <div class="detail-placeholder" id="detailPlaceholder">
+          <span class="ph-icon">👆</span>
+          <span class="ph-text">Click a coloured date to see why it's flagged</span>
+        </div>
+        <div id="detailContent" style="display:none">
+          <div class="dp-header">
+            <div class="dp-date-badge"><div class="day" id="dpDay">—</div><div class="mon" id="dpMon">—</div></div>
+            <div><div class="dp-title" id="dpTitle">—</div><span class="dp-pill" id="dpPill">—</span></div>
+          </div>
+          <ul class="dp-reasons" id="dpReasons"></ul>
+          <div class="dp-tip" id="dpTip"></div>
+        </div>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="upcoming-card">
+        <div class="card-label">Upcoming Predicted Expenses</div>
+        <div id="predList"><div style="color:var(--muted);font-size:.82rem">Loading…</div></div>
+      </div>
+
+      <!-- Insights -->
+      <div class="insight-card">
+        <div class="card-label">Pattern-Based Insights</div>
+        <div id="patInsights"><div style="color:var(--muted);font-size:.82rem">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+let _sess; try { _sess = JSON.parse(localStorage.getItem('sebaUser') || 'null'); } catch(e) { _sess = null; }
+if (!_sess || !_sess.user_id) { location.replace('/login'); throw new Error('No session'); }
+const U = _sess.user_id;
+let curYear=new Date().getFullYear(), curMonth=new Date().getMonth();
+let patterns=null;
+
+const FIXED_RISKS={
+  1:{risk:'high',title:'Rent & EMI Day',reasons:[
+    {icon:'🏠',text:'<strong>Rent payments</strong> typically due on the 1st in most Indian cities.'},
+    {icon:'🏦',text:'<strong>EMI auto-debits</strong> (home, car, personal loans) on the 1st.'},
+    {icon:'📄',text:'Credit card bill cycles often close around the 1st.'},
+  ],tip:'💡 <strong>Tip:</strong> Keep a ₹2,000 buffer above your EMI the night before.'},
+  5:{risk:'medium',title:'Utility Bill Window',reasons:[
+    {icon:'💡',text:'<strong>Electricity bills</strong> due 1st–7th for most DISCOMs.'},
+    {icon:'📡',text:'<strong>Broadband & mobile</strong> bills cycle around the 5th.'},
+  ],tip:'💡 <strong>Tip:</strong> Set autopay for utilities to avoid late fees.'},
+  15:{risk:'medium',title:'Mid-Month Subscriptions',reasons:[
+    {icon:'🎵',text:'<strong>Amazon Prime, Netflix, Spotify</strong> often renew mid-month.'},
+    {icon:'📱',text:'Mobile plan recharge cycles can land around the 15th.'},
+  ],tip:'💡 <strong>Tip:</strong> Audit active subscriptions quarterly. Cancel anything unused in 30 days.'},
+  28:{risk:'high',title:'Month-End Splurge Window',reasons:[
+    {icon:'💸',text:'<strong>Pre-salary spending spikes</strong> — studies show 30–40% rise in last 3 days.'},
+    {icon:'🛒',text:'Impulse purchases increase as people "treat themselves" before salary.'},
+    {icon:'🍕',text:'Dining out frequency rises at month-end due to social peer pressure.'},
+  ],tip:'💡 <strong>Tip:</strong> Set a hard ₹500/day limit for 28th–31st and use cash only.'},
+  29:{risk:'high',title:'Month-End Splurge Window',reasons:[
+    {icon:'💸',text:'<strong>Pre-salary spending peaks</strong> are highest in the last 3 days.'},
+    {icon:'🍺',text:'Weekend + month-end = highest impulse-buy probability for most people.'},
+  ],tip:'💡 <strong>Tip:</strong> Plan meals at home and avoid e-commerce apps today.'},
+  30:{risk:'high',title:'Month-End / Pre-Salary',reasons:[
+    {icon:'💸',text:'Last day before most salary cycles — <strong>spending anxiety peaks</strong>.'},
+    {icon:'🎯',text:'Flash sales are intentionally scheduled here to exploit this pattern.'},
+  ],tip:'💡 <strong>Tip:</strong> Log out of shopping apps on 30th–31st.'},
+  31:{risk:'medium',title:'Month-End / Pre-Salary',reasons:[
+    {icon:'🗓️',text:'End of month — many overspend remaining balance before next salary.'},
+  ],tip:'💡 <strong>Tip:</strong> Plan the next 2 days of meals in advance.'},
+};
+
+const FESTIVALS=[
+  {m:0,d:14,name:'Makar Sankranti',risk:'high',reason:'Kite kits, sweets, family gatherings — offline spending spikes.'},
+  {m:1,d:26,name:'Holi',risk:'high',reason:'Colours, water guns, clothes, parties — one of the highest casual-spend festivals.'},
+  {m:3,d:14,name:'Baisakhi / Tamil New Year',risk:'medium',reason:'New clothes, family meals, gifts.'},
+  {m:5,d:11,name:'Eid al-Adha',risk:'high',reason:'Gifts, new clothes, feasts — among the highest spend festivals.'},
+  {m:7,d:9,name:'Raksha Bandhan',risk:'high',reason:'Gifts for siblings, sweets, travel — sharp spending spike.'},
+  {m:7,d:16,name:'Independence Day Sales',risk:'medium',reason:'Amazon Freedom Sale, Flipkart sale — high impulse purchase risk.'},
+  {m:8,d:7,name:'Ganesh Chaturthi',risk:'high',reason:'Decorations, prasad, modaks, pandal contributions.'},
+  {m:9,d:22,name:'Dussehra',risk:'high',reason:'New clothes, outings, family activities — typically 2–3× avg daily spend.'},
+  {m:10,d:20,name:'Diwali',risk:'high',reason:'Gifts, sweets, crackers, new clothes, décor, shopping sales. Budget 2–4× avg monthly spend!'},
+  {m:10,d:21,name:'Diwali (continued)',risk:'high',reason:'Post-Diwali gifting, travel back home, continued celebrations.'},
+  {m:11,d:25,name:'Christmas',risk:'high',reason:'Parties, gifts, restaurants — year-end sales also begin.'},
+  {m:11,d:31,name:"New Year's Eve",risk:'high',reason:'Parties, clubs, fireworks — among the highest single-night spend of the year.'},
+];
+
+function getFestivalsForDate(y,m,d){return FESTIVALS.filter(f=>f.m===m&&f.d===d);}
+
+async function init(){
+  patterns=await fetch(`/analytics/patterns/${U}`).then(r=>r.json()).catch(()=>null);
+  renderCalendar();renderPredictions();renderInsights();
+}
+
+function changeMonth(d){
+  curMonth+=d;if(curMonth>11){curMonth=0;curYear++;}if(curMonth<0){curMonth=11;curYear--;}
+  renderCalendar();
+}
+
+function getRisks(dow,date,year,month){
+  const isWeekend=(dow===5||dow===6);
+  const festivals=getFestivalsForDate(year,month,date);
+  const fixed=FIXED_RISKS[date];
+  const reasons=[];let topRisk='';let title='';let tip='';
+
+  festivals.forEach(f=>{
+    reasons.push({icon:'🎉',text:`<strong>${f.name}</strong> — ${f.reason}`});
+    if(f.risk==='high') topRisk='high'; else if(topRisk!=='high') topRisk='medium';
+    title=f.name;
+    tip='💡 <strong>Festival Tip:</strong> Set a budget cap before the day and use UPI to stay conscious.';
+  });
+  if(fixed){
+    fixed.reasons.forEach(r=>reasons.push(r));
+    if(fixed.risk==='high') topRisk='high'; else if(topRisk!=='high') topRisk='medium';
+    if(!tip) tip=fixed.tip;if(!title) title=fixed.title;
+  }
+  if(isWeekend&&patterns?.weekend_risk){
+    const pct=Math.round((patterns.weekend_avg_per_tx/patterns.weekday_avg_per_tx-1)*100);
+    reasons.push({icon:'🗓️',text:`<strong>Weekend pattern</strong> — your history shows ${pct}% higher spend per transaction on weekends.`});
+    if(topRisk!=='high') topRisk='high';if(!title) title='High-Risk Weekend';
+    tip=tip||'💡 <strong>Tip:</strong> Set a daily cash limit for weekends.';
+  } else if(isWeekend){
+    reasons.push({icon:'🌅',text:'Weekend — social outings, dining, and leisure spending typically rise.'});
+    if(!topRisk) topRisk='weekend';if(!title) title='Weekend';
+  }
+  if(patterns?.top_impulsive_category&&(isWeekend||(date>=28||date<=2))){
+    reasons.push({icon:'⚡',text:`<strong>Impulse hotspot</strong> — your top impulse category is <em>${patterns.top_impulsive_category}</em>. Extra caution advised.`});
+  }
+  return{risk:topRisk,reasons,tip,title};
+}
+
+function renderCalendar(){
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('calTitle').textContent=MONTHS[curMonth]+' '+curYear;
+  const grid=document.getElementById('calGrid');
+  while(grid.children.length>7) grid.removeChild(grid.lastChild);
+  const today=new Date();
+  const firstDay=new Date(curYear,curMonth,1);
+  const lastDay=new Date(curYear,curMonth+1,0);
+  let startDow=firstDay.getDay();startDow=(startDow===0?6:startDow-1);
+  for(let i=0;i<startDow;i++){const d=document.createElement('div');d.className='cal-day other-month';grid.appendChild(d);}
+  for(let d=1;d<=lastDay.getDate();d++){
+    const dow=(startDow+d-1)%7;
+    const isToday=(d===today.getDate()&&curMonth===today.getMonth()&&curYear===today.getFullYear());
+    const{risk,reasons,tip,title}=getRisks(dow,d,curYear,curMonth);
+    const el=document.createElement('div');
+    let cls='cal-day';
+    if(isToday) cls+=' today';
+    if(risk==='high') cls+=' high-risk has-risk';
+    else if(risk==='medium') cls+=' medium-risk has-risk';
+    else if(risk==='weekend') cls+=' weekend-risk has-risk';
+    el.className=cls;el.innerHTML=`<span>${d}</span>`;
+    if(risk&&risk!==''){
+      const dot=document.createElement('div');dot.className='dot';
+      dot.style.background=risk==='high'?'var(--danger)':risk==='medium'?'var(--warn)':'#a5b4fc';
+      el.appendChild(dot);
+      el.addEventListener('click',()=>showDetail(d,MON[curMonth],title,risk,reasons,tip,el));
+    }
+    grid.appendChild(el);
+  }
+}
+
+function showDetail(dayNum,mon,title,risk,reasons,tip,el){
+  document.querySelectorAll('.cal-day.selected').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('dpDay').textContent=dayNum;
+  document.getElementById('dpMon').textContent=mon;
+  document.getElementById('dpTitle').textContent=title||'Risk Day';
+  const pill=document.getElementById('dpPill');
+  pill.textContent=risk==='high'?'🔴 High Risk':risk==='medium'?'🟡 Medium Risk':'🟣 Weekend';
+  pill.className='dp-pill '+(risk==='high'?'high':risk==='medium'?'medium':'weekend');
+  const ul=document.getElementById('dpReasons');
+  ul.innerHTML=reasons.map(r=>`<li><span class="dp-ri">${r.icon}</span><span>${r.text}</span></li>`).join('');
+  document.getElementById('dpTip').innerHTML=tip||'💡 <strong>Tip:</strong> Plan your spending in advance for this day.';
+  document.getElementById('detailPlaceholder').style.display='none';
+  document.getElementById('detailContent').style.display='block';
+  document.getElementById('detailCard').classList.add('active');
+}
+
+function renderPredictions(){
+  const today=new Date();
+  const RECURRING=[
+    {day:1,title:'Rent / EMI due',desc:'Most payments fall on the 1st',risk:'high'},
+    {day:5,title:'Utility Bills',desc:'Electricity, water, broadband bills',risk:'medium'},
+    {day:15,title:'Mid-month subscriptions',desc:'OTT renewals, mobile plans',risk:'medium'},
+    {day:28,title:'Month-end splurge window',desc:'Spending spikes before salary',risk:'high'},
+  ];
+  const items=RECURRING.map(r=>{
+    let m=today.getMonth(),y=today.getFullYear();
+    if(r.day<=today.getDate()) m++;
+    if(m>11){m=0;y++;}
+    const dt=new Date(y,m,r.day);
+    const mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getMonth()];
+    return{...r,dt,mon,dayNum:r.day};
+  }).sort((a,b)=>a.dt-b.dt);
+  document.getElementById('predList').innerHTML=items.map(i=>`
+    <div class="pred-item">
+      <div class="pred-date-box"><div class="day">${i.dayNum}</div><div class="mon">${i.mon}</div></div>
+      <div class="pred-info"><div class="pt">${i.title}</div><div class="pd">${i.desc}</div></div>
+      <span class="pred-icon">${i.risk==='high'?'⚠️':'🔔'}</span>
+    </div>`).join('');
+}
+
+function renderInsights(){
+  const el=document.getElementById('patInsights');
+  if(!patterns){el.innerHTML='<div style="color:var(--muted);font-size:.8rem">Log more transactions to unlock insights.</div>';return;}
+  const out=[];
+  if(patterns.weekend_risk){
+    const pct=Math.round((patterns.weekend_avg_per_tx/patterns.weekday_avg_per_tx-1)*100);
+    out.push({title:'🗓️ Weekend Splurge Pattern',body:`${pct}% higher spend per transaction on weekends from your history.`});
+  }
+  (patterns.risky_hours||[]).slice(0,2).forEach(h=>{
+    const label=(h%12||12)+(h<12?'am':'pm');
+    out.push({title:`⏰ High-Spend Hour: ${label}`,body:`Transactions around ${label} tend to be larger than your average.`});
+  });
+  if(patterns.top_impulsive_category) out.push({title:`⚡ Impulse: ${patterns.top_impulsive_category}`,body:`Most flagged impulse buys are in ${patterns.top_impulsive_category}. Use the 10-minute rule.`});
+  if(!out.length) out.push({title:'✅ No Major Risk Patterns',body:'Spending looks disciplined! Keep logging for better forecasts.'});
+  el.innerHTML=out.map(o=>`<div class="ins"><div class="ins-title">${o.title}</div><div class="ins-body">${o.body}</div></div>`).join('');
+}
+
+init();
+</script>
+<style>.chat-fab{position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:#5b5ef4;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;border:none;box-shadow:0 4px 24px rgba(91,94,244,.4);transition:transform .2s,box-shadow .2s;z-index:9999}.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(91,94,244,.6)}</style>
+<button class="chat-fab" title="AI Chat" onclick="location.href='/chat'">💬</button>
+<script src="/static/chat-widget.js"></script></body>
+</html>

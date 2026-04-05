@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>S.E.B.A – Crypto Space</title>
+  <meta name="description" content="Live Crypto Prices and Market Charts" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --p1: #7c3aed;
+      --p2: #6366f1;
+      --p3: #38bdf8;
+      --glass-bg: rgba(255,255,255,0.04);
+      --glass-bg-hover: rgba(255,255,255,0.08);
+      --glass-border: rgba(255,255,255,0.10);
+      --glass-border-hover: rgba(255,255,255,0.22);
+      --text: #f1f0ff;
+      --muted: rgba(255,255,255,0.38);
+      --danger: #f87171;
+      --success: #4ade80;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      overflow-x: hidden;
+      background: #07060f;
+      min-height: 100vh;
+    }
+
+    /* Backgrounds */
+    .bg-wrap { position: fixed; inset: 0; z-index: -2; background: #07060f; overflow: hidden; }
+    .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .55; animation: drift 18s ease-in-out infinite alternate; }
+    .orb1 { width: 560px; height: 560px; background: radial-gradient(circle, #7c3aed, transparent 70%); top: -160px; left: -120px; animation-delay: 0s; }
+    .orb2 { width: 440px; height: 440px; background: radial-gradient(circle, #38bdf8, transparent 70%); top: 45%; right: -140px; animation-delay: -6s; }
+    .orb3 { width: 380px; height: 380px; background: radial-gradient(circle, #6366f1, transparent 70%); bottom: -100px; left: 30%; animation-delay: -12s; }
+    @keyframes drift { 0%{transform:translate(0,0) scale(1)} 100%{transform:translate(30px,25px) scale(1.06)} }
+    #stars { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+    .noise { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+    /* Nav */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2.4rem; height: 60px;
+      background: rgba(7,6,15,.55);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .nav-brand { display: flex; flex-direction: column; gap: 1px; text-decoration: none; }
+    .nav-logo { font-size: .95rem; font-weight: 800; letter-spacing: .08em; background: linear-gradient(120deg, #fff 0%, #c4b5fd 60%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-tag { font-size: .58rem; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); }
+    .nav-pills { display: flex; gap: .4rem; align-items: center; }
+    .npill { display: inline-flex; align-items: center; gap: .35rem; padding: .38rem .9rem; border-radius: 99px; font-size: .77rem; font-weight: 500; letter-spacing: .01em; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(12px); color: var(--muted); text-decoration: none; transition: all .22s; cursor: pointer; }
+    .npill.active { background: rgba(99,102,241,.15); border-color: rgba(99,102,241,.4); color: #fff; }
+    .npill:not(.active):hover { background: var(--glass-bg-hover); border-color: var(--glass-border-hover); color: var(--text); }
+    .npill.back { background: transparent; border-color: transparent; color: #a5b4fc; padding-left: 0; }
+    .npill.back:hover { color: #fff; background: transparent; transform: translateX(-3px); }
+
+    /* Main */
+    main { position: relative; z-index: 10; max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 8rem; }
+    
+    .heading { text-align: center; margin-bottom: 3rem; animation: riseIn .8s both; }
+    .heading h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -.025em; margin-bottom: .5rem; background: linear-gradient(to right, #fff, #a5b4fc, #fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .heading p { font-size: 1.1rem; color: var(--muted); }
+
+    .controls { display: flex; justify-content: center; margin-bottom: 2rem; animation: riseIn .8s .1s both; }
+    .btn-search {
+      display: inline-flex; align-items: center; gap: .75rem;
+      padding: .75rem 1.5rem; border-radius: 12px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+      color: var(--text); font-size: .95rem; font-family: inherit; cursor: pointer;
+      backdrop-filter: blur(12px); transition: all .2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .btn-search:hover { background: rgba(255,255,255,0.1); border-color: var(--glass-border-hover); transform: translateY(-2px); }
+    .btn-search kbd { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-size: .75rem; border: 1px solid rgba(255,255,255,0.1); font-family: monospace; color: var(--muted); }
+
+    /* Grid */
+    .crypto-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;
+      animation: riseIn .8s .2s both;
+    }
+
+    /* Card */
+    .crypto-card {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(24px) saturate(160%); -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-radius: 20px; padding: 1.5rem; position: relative; overflow: hidden;
+      transition: transform .3s cubic-bezier(.22,.61,.36,1), border-color .3s, box-shadow .3s;
+      box-shadow: 0 8px 32px rgba(0,0,0,.3);
+      /* anchor reset */
+      text-decoration: none; color: inherit; display: block; cursor: pointer;
+    }
+    .crypto-card:hover { border-color: rgba(165,180,252,.35); transform: translateY(-5px); box-shadow: 0 16px 48px rgba(99,102,241,.15); }
+    .card-chart-link {
+      margin-top: 1rem; font-size: .72rem; font-weight: 700; letter-spacing: .06em;
+      color: rgba(165,180,252,.5); text-align: right;
+      opacity: 0; transform: translateY(4px);
+      transition: opacity .22s, transform .22s, color .22s;
+    }
+    .crypto-card:hover .card-chart-link { opacity: 1; transform: translateY(0); color: #a5b4fc; }
+    
+    .card-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .coin-info { display: flex; align-items: center; gap: .75rem; }
+    .coin-img { width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,0.1); padding: 8px; display: flex; align-items: center; justify-content: center; }
+    .coin-img img { width: 100%; height: 100%; object-fit: contain; }
+    .coin-name { font-weight: 700; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+    .coin-symbol { font-size: .75rem; color: var(--muted); text-transform: uppercase; font-weight: 600; letter-spacing: .05em; }
+    
+    .price-info { text-align: right; }
+    .price { font-size: 1.25rem; font-weight: 800; }
+    .change { font-size: .75rem; font-weight: 600; display: flex; align-items: center; gap: .25rem; justify-content: flex-end; margin-top: .2rem; }
+    .change.pos { color: var(--success); }
+    .change.neg { color: var(--danger); }
+
+    .sparkline { width: 100%; height: 60px; margin: 1.2rem 0; background: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid rgba(255,255,255,0.03); overflow: hidden; position: relative; }
+    .sparkline svg { width: 100%; height: 100%; overflow: visible; }
+    .spark-path { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+    .spark-path.pos { stroke: var(--success); filter: drop-shadow(0 2px 8px rgba(74,222,128,0.4)); }
+    .spark-path.neg { stroke: var(--danger); filter: drop-shadow(0 2px 8px rgba(248,113,113,0.4)); }
+
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .stat-box { display: flex; flex-direction: column; gap: .25rem; }
+    .stat-label { font-size: .65rem; color: var(--muted); text-transform: uppercase; font-weight: 600; letter-spacing: .05em; }
+    .stat-val { font-size: .85rem; font-weight: 700; }
+    
+    /* Search Modal */
+    #searchModal {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+      display: none; align-items: flex-start; justify-content: center; padding-top: 10vh; z-index: 1000;
+      opacity: 0; transition: opacity .2s;
+    }
+    #searchModal.active { display: flex; opacity: 1; }
+    .modal-content {
+      width: 100%; max-width: 500px; background: #18181b; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); overflow: hidden;
+      transform: scale(0.95) translateY(-20px); transition: transform .2s;
+    }
+    #searchModal.active .modal-content { transform: scale(1) translateY(0); }
+    
+    .search-input-wrapper { display: flex; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .search-input-wrapper input {
+      flex: 1; background: transparent; border: none; color: white; font-size: 1.1rem; outline: none; font-family: inherit;
+    }
+    .search-input-wrapper input::placeholder { color: rgba(255,255,255,0.3); }
+    
+    .search-results { max-height: 350px; overflow-y: auto; }
+    .search-results::-webkit-scrollbar { width: 6px; }
+    .search-results::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 99px; }
+    .search-result-item {
+      display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; transition: background .2s;
+    }
+    .search-result-item:hover { background: rgba(255,255,255,0.05); }
+    .sr-info { display: flex; align-items: center; gap: .75rem; }
+    .sr-img { width: 24px; height: 24px; border-radius: 50%; }
+    .sr-name { font-weight: 500; font-size: .95rem; }
+    .sr-symbol { font-size: .75rem; color: var(--muted); text-transform: uppercase; }
+    
+    .loader { text-align: center; padding: 3rem; color: var(--muted); font-size: .9rem; animation: pulse 1.5s infinite; }
+
+    @keyframes riseIn { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+    /* ── Insights Section ───────────────────────────────────────────── */
+    .insights-section { margin-bottom: 3.5rem; animation: riseIn .9s .05s both; }
+
+    /* Section label */
+    .ins-label {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: #f7931a; margin-bottom: 1.4rem; padding: .35rem .9rem;
+      border: 1px solid rgba(247,147,26,.28); border-radius: 99px;
+      background: rgba(247,147,26,.07);
+    }
+    .ins-label-dot { width: 6px; height: 6px; border-radius: 50%; background: #f7931a;
+      box-shadow: 0 0 6px #f7931a; animation: pulse 1.8s infinite; }
+
+    /* ── Stat bubbles row ── */
+    .stat-bubbles { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-bottom: 2rem; }
+    .stat-bub {
+      display: flex; flex-direction: column; align-items: center; gap: .25rem;
+      padding: 1.1rem 1.4rem; border-radius: 18px; min-width: 130px;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px); cursor: default;
+      transition: transform .28s cubic-bezier(.22,.61,.36,1), box-shadow .28s, border-color .28s;
+      position: relative; overflow: hidden;
+    }
+    .stat-bub::before {
+      content: ''; position: absolute; inset: 0; opacity: 0;
+      transition: opacity .3s;
+    }
+    .stat-bub:hover { transform: translateY(-6px) scale(1.04); }
+    .stat-bub.orange { border-color: rgba(247,147,26,.25); }
+    .stat-bub.orange::before { background: radial-gradient(ellipse at 50% 0%, rgba(247,147,26,.15), transparent 70%); }
+    .stat-bub.orange:hover { border-color: rgba(247,147,26,.5); box-shadow: 0 12px 36px rgba(247,147,26,.2); }
+    .stat-bub.orange:hover::before { opacity: 1; }
+    .stat-bub.violet { border-color: rgba(124,58,237,.25); }
+    .stat-bub.violet::before { background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,.18), transparent 70%); }
+    .stat-bub.violet:hover { border-color: rgba(124,58,237,.55); box-shadow: 0 12px 36px rgba(124,58,237,.2); }
+    .stat-bub.violet:hover::before { opacity: 1; }
+    .stat-bub.cyan { border-color: rgba(56,189,248,.25); }
+    .stat-bub.cyan::before { background: radial-gradient(ellipse at 50% 0%, rgba(56,189,248,.15), transparent 70%); }
+    .stat-bub.cyan:hover { border-color: rgba(56,189,248,.55); box-shadow: 0 12px 36px rgba(56,189,248,.2); }
+    .stat-bub.cyan:hover::before { opacity: 1; }
+    .stat-bub.green { border-color: rgba(74,222,128,.25); }
+    .stat-bub.green::before { background: radial-gradient(ellipse at 50% 0%, rgba(74,222,128,.14), transparent 70%); }
+    .stat-bub.green:hover { border-color: rgba(74,222,128,.55); box-shadow: 0 12px 36px rgba(74,222,128,.18); }
+    .stat-bub.green:hover::before { opacity: 1; }
+    .stat-bub-ico { font-size: 1.5rem; }
+    .stat-bub-val { font-size: 1.3rem; font-weight: 900; color: #fff; line-height: 1; }
+    .stat-bub-lbl { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; font-weight: 600; text-align: center; }
+    .stat-bub-sub { font-size: .58rem; color: #4ade80; font-weight: 700; margin-top: .1rem; }
+
+    /* ── Flashcard carousel ── */
+    .flashcard-wrap {
+      position: relative; border-radius: 22px; overflow: hidden;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(24px); padding: 2rem 2.4rem;
+      margin-bottom: 2rem; cursor: pointer;
+      transition: border-color .3s, box-shadow .3s;
+      min-height: 180px; display: flex; flex-direction: column; justify-content: center;
+    }
+    .flashcard-wrap:hover { border-color: rgba(247,147,26,.3); box-shadow: 0 12px 48px rgba(247,147,26,.1); }
+    .fc-bg-glow { position: absolute; inset: 0; pointer-events: none; transition: background .6s; }
+    .fc-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+    .fc-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      padding: .28rem .75rem; border-radius: 99px;
+    }
+    .fc-nav { display: flex; gap: .5rem; align-items: center; }
+    .fc-btn {
+      width: 30px; height: 30px; border-radius: 9px; border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04); color: var(--muted); font-size: .85rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all .2s; font-family: inherit;
+    }
+    .fc-btn:hover { background: rgba(247,147,26,.15); border-color: rgba(247,147,26,.4); color: #f7931a; }
+    .fc-dots { display: flex; gap: .4rem; align-items: center; }
+    .fc-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.15); transition: all .3s; cursor: pointer; }
+    .fc-dot.active { background: #f7931a; width: 18px; border-radius: 3px; box-shadow: 0 0 6px rgba(247,147,26,.5); }
+    .fc-slide { animation: fcIn .4s cubic-bezier(.22,.61,.36,1); }
+    @keyframes fcIn { from{opacity:0;transform:translateX(18px)} to{opacity:1;transform:translateX(0)} }
+    .fc-em { font-size: 2.2rem; margin-bottom: .6rem; display: block; }
+    .fc-title { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+    .fc-desc { font-size: .88rem; color: rgba(255,255,255,.6); line-height: 1.65; max-width: 700px; }
+    .fc-tag { display: inline-block; margin-top: .9rem; padding: .25rem .7rem; border-radius: 6px; font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+    .fc-progress { position: absolute; bottom: 0; left: 0; height: 2px; background: linear-gradient(90deg, #f7931a, #f59e0b); border-radius: 0 2px 0 0; transition: width .1s linear; }
+
+    /* ── Ticker ── */
+    .ticker-wrap {
+      overflow: hidden; border-radius: 12px; padding: .6rem 0;
+      background: rgba(247,147,26,.04); border: 1px solid rgba(247,147,26,.12);
+      position: relative; margin-bottom: 2rem;
+    }
+    .ticker-wrap::before, .ticker-wrap::after {
+      content: ''; position: absolute; top: 0; bottom: 0; width: 60px; z-index: 2; pointer-events: none;
+    }
+    .ticker-wrap::before { left: 0; background: linear-gradient(90deg, #07060f, transparent); }
+    .ticker-wrap::after { right: 0; background: linear-gradient(-90deg, #07060f, transparent); }
+    .ticker-track { display: flex; gap: 0; white-space: nowrap; animation: tickScroll 40s linear infinite; }
+    .ticker-track:hover { animation-play-state: paused; }
+    @keyframes tickScroll { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .tick-item {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .3rem 1.6rem; font-size: .75rem; font-weight: 500; color: rgba(252,211,77,.75);
+      border-right: 1px solid rgba(247,147,26,.1);
+      transition: color .2s;
+    }
+    .tick-item:hover { color: #fcd34d; }
+    .tick-item-ico { font-size: .95rem; }
+    
+    /* Toast (for errors/messages) */
+    #toast { position: fixed; top: 1.2rem; right: 1.2rem; background: rgba(16,14,28,.8); border: 1px solid var(--glass-border); backdrop-filter: blur(24px); border-radius: 14px; padding: .85rem 1.3rem; font-size: .83rem; max-width: 340px; z-index: 999; opacity: 0; transform: translateY(-10px); transition: opacity .25s, transform .25s; pointer-events: none; }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.ok { border-color: rgba(74,222,128,.3); }
+    #toast.err { border-color: rgba(248,113,113,.3); }
+
+    /* Crypto Chat FAB */
+    #crypto-fab {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 9000;
+      width: 58px; height: 58px; border-radius: 50%;
+      background: linear-gradient(135deg, #f7931a, #f59e0b);
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; box-shadow: 0 6px 28px rgba(247,147,26,.5);
+      transition: transform .25s cubic-bezier(.22,.61,.36,1), box-shadow .25s;
+      animation: fabPop .6s 1.5s both cubic-bezier(.22,.61,.36,1);
+    }
+    #crypto-fab:hover { transform: scale(1.12); box-shadow: 0 10px 36px rgba(247,147,26,.65); }
+    @keyframes fabPop { from{opacity:0;transform:scale(.5)} to{opacity:1;transform:scale(1)} }
+
+    /* Crypto chat bubble hint */
+    #crypto-bubble {
+      position: fixed; bottom: 6.5rem; right: 1.5rem; z-index: 9000;
+      background: linear-gradient(135deg, rgba(247,147,26,.15), rgba(245,158,11,.1));
+      border: 1px solid rgba(247,147,26,.35);
+      backdrop-filter: blur(16px); border-radius: 14px 14px 4px 14px;
+      padding: .7rem 1rem; max-width: 220px; font-size: .78rem; color: #fcd34d;
+      font-weight: 600; line-height: 1.45;
+      animation: bubblePop .5s 2s both cubic-bezier(.22,.61,.36,1);
+      cursor: pointer;
+    }
+    #crypto-bubble .bub-sub { font-size: .65rem; color: rgba(252,211,77,.6); font-weight: 400; margin-top: .25rem; }
+    @keyframes bubblePop { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    /* Override widget welcome for crypto page */
+    .sc-wl-crypto { background: linear-gradient(135deg, rgba(247,147,26,.12), rgba(245,158,11,.06)) !important; border: 1px solid rgba(247,147,26,.28) !important; border-radius: 14px; padding: 14px; }
+    .sc-chip-crypto { border-color: rgba(247,147,26,.3) !important; background: rgba(247,147,26,.08) !important; color: #fcd34d !important; }
+    .sc-chip-crypto:hover { background: rgba(247,147,26,.22) !important; border-color: rgba(247,147,26,.6) !important; color: #fff !important; }
+  </style>
+</head>
+<body>
+
+<div class="bg-wrap">
+  <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+</div>
+<canvas id="stars"></canvas>
+<div class="noise"></div>
+
+<nav>
+  <a href="/home" class="nav-brand">
+    <div class="nav-logo">S · E · B · A</div>
+    <div class="nav-tag">Smart Expense Behaviour Analyser</div>
+  </a>
+  <div class="nav-pills">
+    <a href="/home" class="npill back">← Back to Dashboard</a>
+    <a href="/crypto" class="npill active">₿ Crypto Space</a>
+  </div>
+</nav>
+
+<main>
+  <div class="heading">
+    <h1>Crypto Analytics</h1>
+    <p>Live market data and interactive sparklines for top cryptocurrencies.</p>
+  </div>
+
+  <!-- ── Insights Section ── -->
+  <section class="insights-section">
+    <div style="text-align:center;margin-bottom:1.4rem;">
+      <span class="ins-label"><span class="ins-label-dot"></span> Why Crypto? — Fast Facts</span>
+    </div>
+
+    <!-- Stat Bubbles -->
+    <div class="stat-bubbles">
+      <div class="stat-bub orange">
+        <span class="stat-bub-ico">🌍</span>
+        <span class="stat-bub-val">420M+</span>
+        <span class="stat-bub-lbl">Crypto Users Worldwide</span>
+        <span class="stat-bub-sub">↑ 3× since 2020</span>
+      </div>
+      <div class="stat-bub violet">
+        <span class="stat-bub-ico">⚡</span>
+        <span class="stat-bub-val">24/7</span>
+        <span class="stat-bub-lbl">Market Never Closes</span>
+        <span class="stat-bub-sub">Unlike stocks & gold</span>
+      </div>
+      <div class="stat-bub cyan">
+        <span class="stat-bub-ico">💸</span>
+        <span class="stat-bub-val">&lt;$1</span>
+        <span class="stat-bub-lbl">Cross-border Transfer</span>
+        <span class="stat-bub-sub">vs ₹500+ bank fees</span>
+      </div>
+      <div class="stat-bub green">
+        <span class="stat-bub-ico">📈</span>
+        <span class="stat-bub-val">1,300%</span>
+        <span class="stat-bub-lbl">BTC Return (5yr)</span>
+        <span class="stat-bub-sub">2019 → 2024</span>
+      </div>
+      <div class="stat-bub violet">
+        <span class="stat-bub-ico">🔐</span>
+        <span class="stat-bub-val">21M</span>
+        <span class="stat-bub-lbl">Max Bitcoin Supply</span>
+        <span class="stat-bub-sub">Truly scarce asset</span>
+      </div>
+      <div class="stat-bub orange">
+        <span class="stat-bub-ico">🇮🇳</span>
+        <span class="stat-bub-val">15M+</span>
+        <span class="stat-bub-lbl">Indian Crypto Holders</span>
+        <span class="stat-bub-sub">Fastest growing market</span>
+      </div>
+    </div>
+
+    <!-- Scrubbing Ticker -->
+    <div class="ticker-wrap" title="Hover to pause">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </div>
+
+    <!-- Flashcard Carousel -->
+    <div class="flashcard-wrap" id="flashcardWrap" onclick="fcNext()" title="Click to advance">
+      <div class="fc-bg-glow" id="fcGlow"></div>
+      <div class="fc-top">
+        <div class="fc-badge" id="fcBadge"></div>
+        <div class="fc-nav">
+          <button class="fc-btn" onclick="event.stopPropagation();fcPrev()">←</button>
+          <div class="fc-dots" id="fcDots"></div>
+          <button class="fc-btn" onclick="event.stopPropagation();fcNext()">→</button>
+        </div>
+      </div>
+      <div id="fcSlide" class="fc-slide"></div>
+      <div class="fc-progress" id="fcProgress"></div>
+    </div>
+  </section>
+
+  <div class="controls">
+    <button class="btn-search" onclick="openSearch()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      Search Cryptocurrencies <kbd>⌘K</kbd>
+    </button>
+  </div>
+
+  <div id="cryptoGrid" class="crypto-grid">
+    <div class="loader" id="mainLoader">Loading market data...</div>
+  </div>
+</main>
+
+<div id="searchModal" onclick="closeSearch()">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="search-input-wrapper">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:12px;opacity:0.5;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="searchInput" placeholder="Search by name or symbol (e.g. BTC)..." oninput="handleSearch(this.value)" autocomplete="off">
+    </div>
+    <div class="search-results" id="searchResults">
+      <div style="padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem;">Type to search...</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // -- Stars Background --
+  (function(){
+    const c=document.getElementById('stars'), ctx=c.getContext('2d');
+    c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:-1';
+    function sz(){c.width=innerWidth;c.height=innerHeight;}
+    sz();
+    let pts=[];
+    const mk=()=>({x:Math.random()*c.width, y:Math.random()*c.height, r:Math.random()*.7+.2, o:Math.random(), spd:Math.random()*.015+.004, dir:Math.random()>.5?1:-1});
+    for(let i=0;i<150;i++) pts.push(mk());
+    function draw(){
+      ctx.clearRect(0,0,c.width,c.height);
+      pts.forEach(p=>{
+        p.o+=p.spd*p.dir;
+        if(p.o>=1){p.o=1;p.dir=-1;}else if(p.o<=.08){p.o=.08;p.dir=1;}
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle=`rgba(220,215,255,${p.o})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize',()=>{sz();pts=[];for(let i=0;i<150;i++)pts.push(mk());});
+    draw();
+  })();
+
+  // -- Formatters --
+  const formatPrice = (p) => {
+    if(!p) return '$0.00';
+    if(p < 0.01) return '$' + p.toFixed(6);
+    if(p < 1) return '$' + p.toFixed(4);
+    if(p < 100) return '$' + p.toFixed(2);
+    return '$' + p.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  };
+  const formatMCap = (m) => {
+    if(!m) return '-';
+    if(m >= 1e12) return '$' + (m/1e12).toFixed(2) + 'T';
+    if(m >= 1e9) return '$' + (m/1e9).toFixed(2) + 'B';
+    if(m >= 1e6) return '$' + (m/1e6).toFixed(2) + 'M';
+    return '$' + m.toLocaleString();
+  };
+  const formatPct = (pct) => {
+    if(pct === null || pct === undefined) return '0.00%';
+    return (pct > 0 ? '+' : '') + pct.toFixed(2) + '%';
+  };
+
+  const showToast = (txt, type='ok') => {
+    const t = document.getElementById('toast');
+    t.textContent = txt; t.className = `show ${type}`;
+    setTimeout(()=>t.className='', 3000);
+  };
+
+  // State
+  let trackedCoinIds = ['bitcoin', 'ethereum', 'binancecoin', 'solana', 'ripple', 'cardano', 'avalanche-2', 'polkadot', 'chainlink'];
+  
+  // -- Make SVG Sparkline --
+  const makeSparklineSVG = (priceArr, isPos) => {
+    if(!priceArr || priceArr.length < 2) return '';
+    const min = Math.min(...priceArr), max = Math.max(...priceArr);
+    const range = max - min || 1;
+    // We map x from 0 to 100, y from 60 to 0 (since SVG y is inverted)
+    const pts = priceArr.map((v, i) => {
+      const x = (i / (priceArr.length - 1)) * 100;
+      const y = 60 - (((v - min) / range) * 50) - 5; // leave 5px padding top/bot
+      return `${i===0?'M':'L'}${x.toFixed(2)},${y.toFixed(2)}`;
+    }).join(' ');
+    const pathClass = isPos ? 'spark-path pos' : 'spark-path neg';
+    return `<svg preserveAspectRatio="none" viewBox="0 0 100 60"><path class="${pathClass}" d="${pts}" vector-effect="non-scaling-stroke" /></svg>`;
+  };
+
+  // -- Render Dashboard --
+  const renderCards = (dataList) => {
+    const grid = document.getElementById('cryptoGrid');
+    if(!dataList || !dataList.length) {
+      grid.innerHTML = '<div class="loader">No data available. Add coins via search.</div>';
+      return;
+    }
+    
+    let html = '';
+    dataList.forEach(c => {
+      const isPos = c.price_change_percentage_24h >= 0;
+      const chgClass = isPos ? 'pos' : 'neg';
+      const spark = c.sparkline_in_7d && c.sparkline_in_7d.price ? makeSparklineSVG(c.sparkline_in_7d.price, isPos) : '';
+      
+      html += `
+        <a class="crypto-card" href="https://www.coingecko.com/en/coins/${c.id}" target="_blank" rel="noopener noreferrer" title="View ${c.name} chart on CoinGecko">
+          <div class="card-head">
+            <div class="coin-info">
+              <div class="coin-img"><img src="${c.image}" alt="${c.symbol}" onerror="this.src='https://assets.coingecko.com/coins/images/1/small/bitcoin.png'" /></div>
+              <div>
+                <div class="coin-name">${c.name}</div>
+                <div class="coin-symbol">${c.symbol}</div>
+              </div>
+            </div>
+            <div class="price-info">
+              <div class="price">${formatPrice(c.current_price)}</div>
+              <div class="change ${chgClass}">
+                ${isPos ? '↗' : '↘'} ${formatPct(c.price_change_percentage_24h)}
+              </div>
+            </div>
+          </div>
+          
+          <div class="sparkline">${spark}</div>
+          
+          <div class="stats-grid">
+            <div class="stat-box"><span class="stat-label">Market Cap</span><span class="stat-val">${formatMCap(c.market_cap)}</span></div>
+            <div class="stat-box"><span class="stat-label">Volume 24h</span><span class="stat-val">${formatMCap(c.total_volume)}</span></div>
+            <div class="stat-box"><span class="stat-label">24h High</span><span class="stat-val" style="color:var(--success);">${formatPrice(c.high_24h)}</span></div>
+            <div class="stat-box"><span class="stat-label">24h Low</span><span class="stat-val" style="color:var(--danger);">${formatPrice(c.low_24h)}</span></div>
+          </div>
+
+          <div class="card-chart-link">View Chart →</div>
+        </a>
+      `;
+    });
+    grid.innerHTML = html;
+  };
+
+  const fetchDashboardData = async () => {
+    if(trackedCoinIds.length === 0) return renderCards([]);
+    try {
+      const ids = trackedCoinIds.join(',');
+      const res = await fetch(`https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc&sparkline=true&price_change_percentage=24h`);
+      if(!res.ok) throw new Error('API limit or error');
+      const data = await res.json();
+      renderCards(data);
+    } catch (e) {
+      console.warn("CoinGecko API failed, showing cache/error", e);
+      // Fallback visualization if needed could go here
+      const g = document.getElementById('cryptoGrid');
+      if(g.innerHTML.includes('Loading')) g.innerHTML = `<div class="loader" style="color:var(--danger)">Failed to load data. The public API might be rate limited. Please try again later.</div>`;
+    }
+  };
+
+  // Initial fetch
+  fetchDashboardData();
+  setInterval(fetchDashboardData, 60000); // refresh every minute
+
+  // -- Modal & Search --
+  let searchTimeout;
+  const modal = document.getElementById('searchModal');
+  const searchInput = document.getElementById('searchInput');
+  const resultsContainer = document.getElementById('searchResults');
+
+  window.openSearch = () => { modal.classList.add('active'); searchInput.focus(); };
+  window.closeSearch = () => { modal.classList.remove('active'); searchInput.value = ''; resultsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem;">Type to search...</div>'; };
+
+  // Keyboard shortcut
+  document.addEventListener('keydown', e => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+    if (e.key === 'Escape' && modal.classList.contains('active')) closeSearch();
+  });
+
+  window.handleSearch = (val) => {
+    clearTimeout(searchTimeout);
+    const q = val.trim().toLowerCase();
+    if(!q) {
+      resultsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem;">Type to search...</div>';
+      return;
+    }
+    resultsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem;">Searching...</div>';
+    
+    searchTimeout = setTimeout(async () => {
+      try {
+        const sr = await fetch(`https://api.coingecko.com/api/v3/search?query=${q}`);
+        const sdata = await sr.json();
+        const coins = sdata.coins.slice(0, 6);
+        if(!coins.length) {
+          resultsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem;">No results found.</div>';
+          return;
+        }
+        
+        let htmlStr = '';
+        coins.forEach(c => {
+          htmlStr += `
+            <div class="search-result-item" onclick="addCoin('${c.id}')">
+              <div class="sr-info">
+                <img class="sr-img" src="${c.large}" onerror="this.src='https://assets.coingecko.com/coins/images/1/small/bitcoin.png'" />
+                <div>
+                  <div class="sr-name">${c.name}</div>
+                  <div class="sr-symbol">${c.symbol}</div>
+                </div>
+              </div>
+              <div style="font-size:0.75rem; color:var(--muted); border:1px solid rgba(255,255,255,0.1); padding:4px 8px; border-radius:4px;">Add</div>
+            </div>
+          `;
+        });
+        resultsContainer.innerHTML = htmlStr;
+      } catch (e) {
+        resultsContainer.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--danger); font-size: 0.9rem;">Search failed. Try again.</div>';
+      }
+    }, 400);
+  };
+
+  window.addCoin = (id) => {
+    if(trackedCoinIds.includes(id)) {
+      showToast('Coin already tracking', 'ok');
+    } else {
+      trackedCoinIds.push(id);
+      showToast('Coin added!', 'ok');
+      fetchDashboardData();
+    }
+    closeSearch();
+  };
+
+  // ── Flashcard Data ──────────────────────────────────────────────
+  const FC_SLIDES = [
+    {
+      em: '🌍', badge: '🌐 Borderless', badgeColor: 'rgba(56,189,248,.2)', badgeText: '#38bdf8',
+      glow: 'radial-gradient(ellipse at 0% 50%, rgba(56,189,248,.07), transparent 65%)',
+      title: 'Money Without Borders',
+      desc: 'Send ₹10 or ₹10 Crore to anyone, anywhere in the world — instantly, with no bank, no SWIFT, no middleman. Crypto is the world\'s first truly global currency.',
+      tag: '✈️ No SWIFT needed', tagBg: 'rgba(56,189,248,.12)', tagColor: '#38bdf8'
+    },
+    {
+      em: '🔐', badge: '🏦 Ownership', badgeColor: 'rgba(124,58,237,.25)', badgeText: '#a78bfa',
+      glow: 'radial-gradient(ellipse at 100% 30%, rgba(124,58,237,.09), transparent 65%)',
+      title: 'You Own It. Truly.',
+      desc: 'Unlike bank deposits, no government or institution can freeze, seize, or devalue your crypto. Your private key = your money. Full self-custody, always.',
+      tag: '🔑 Be your own bank', tagBg: 'rgba(124,58,237,.15)', tagColor: '#a78bfa'
+    },
+    {
+      em: '📈', badge: '💰 Returns', badgeColor: 'rgba(74,222,128,.2)', badgeText: '#4ade80',
+      glow: 'radial-gradient(ellipse at 50% 0%, rgba(74,222,128,.07), transparent 65%)',
+      title: 'Highest Performing Asset Class',
+      desc: 'Bitcoin returned over 1,000% in 5 years. Ethereum over 2,000%. No other asset — not gold, not Nifty 50 — has matched crypto\'s decade-long performance trajectory.',
+      tag: '📊 BTC: +1,300% (5yr)', tagBg: 'rgba(74,222,128,.1)', tagColor: '#4ade80'
+    },
+    {
+      em: '⚡', badge: '🔗 DeFi', badgeColor: 'rgba(245,158,11,.2)', badgeText: '#fbbf24',
+      glow: 'radial-gradient(ellipse at 0% 100%, rgba(245,158,11,.07), transparent 65%)',
+      title: 'Earn While You Hold',
+      desc: 'DeFi lets you stake, lend, and provide liquidity with your crypto — earning 5%-20% APY passively. Your savings account pays 3% max. Crypto can do better.',
+      tag: '💎 Up to 20% APY staking', tagBg: 'rgba(245,158,11,.1)', tagColor: '#fbbf24'
+    },
+    {
+      em: '🛡️', badge: '🔒 Inflation Hedge', badgeColor: 'rgba(247,147,26,.22)', badgeText: '#f7931a',
+      glow: 'radial-gradient(ellipse at 100% 100%, rgba(247,147,26,.08), transparent 65%)',
+      title: 'Protect Against Inflation',
+      desc: 'The Indian rupee has lost over 50% of its value against the dollar in 20 years. Bitcoin\'s supply is capped at 21 million — it\'s mathematically deflationary.',
+      tag: '📉 Rupee lost 50% (20yr)', tagBg: 'rgba(247,147,26,.1)', tagColor: '#f7931a'
+    },
+    {
+      em: '🚀', badge: '🇮🇳 India Opportunity', badgeColor: 'rgba(99,102,241,.25)', badgeText: '#a5b4fc',
+      glow: 'radial-gradient(ellipse at 50% 100%, rgba(99,102,241,.08), transparent 65%)',
+      title: 'India\'s Crypto Moment',
+      desc: 'India has 15M+ crypto holders and is one of the fastest-growing crypto markets globally. Exchanges like CoinDCX, Mudrex and WazirX let you start with as little as ₹100.',
+      tag: '₹100 to start on CoinDCX', tagBg: 'rgba(99,102,241,.12)', tagColor: '#a5b4fc'
+    },
+    {
+      em: '🧠', badge: '📚 Easy to Start', badgeColor: 'rgba(56,189,248,.2)', badgeText: '#38bdf8',
+      glow: 'radial-gradient(ellipse at 0% 0%, rgba(56,189,248,.07), transparent 65%)',
+      title: 'Simpler Than You Think',
+      desc: 'You don\'t need to understand blockchain to invest in crypto — just like you don\'t need to understand TCP/IP to use the internet. Download an app, verify KYC, buy Bitcoin.',
+      tag: '⏱️ Setup in under 10 mins', tagBg: 'rgba(56,189,248,.1)', tagColor: '#38bdf8'
+    },
+    {
+      em: '🌱', badge: '💡 SIP Strategy', badgeColor: 'rgba(74,222,128,.2)', badgeText: '#4ade80',
+      glow: 'radial-gradient(ellipse at 100% 50%, rgba(74,222,128,.07), transparent 65%)',
+      title: 'SIP Into Crypto Like Mutual Funds',
+      desc: 'Invest a fixed amount weekly — ₹500 or ₹1,000 — regardless of price. This "Dollar-Cost Averaging" strategy reduces risk, beats timing the market, and builds wealth slowly and steadily.',
+      tag: '📅 ₹500/week = smart start', tagBg: 'rgba(74,222,128,.12)', tagColor: '#4ade80'
+    }
+  ];
+
+  let fcIdx = 0, fcTimer, fcProgressTimer, fcProgressVal = 0;
+  const FC_DURATION = 6000;
+
+  function fcRender() {
+    const s = FC_SLIDES[fcIdx];
+    // Glow
+    document.getElementById('fcGlow').style.background = s.glow;
+    // Badge
+    const badge = document.getElementById('fcBadge');
+    badge.textContent = s.badge;
+    badge.style.background = s.badgeColor;
+    badge.style.color = s.badgeText;
+    badge.style.border = `1px solid ${s.badgeText}44`;
+    // Slide content
+    const slide = document.getElementById('fcSlide');
+    slide.className = 'fc-slide';
+    void slide.offsetWidth; // force reflow for animation
+    slide.innerHTML = `
+      <span class="fc-em">${s.em}</span>
+      <div class="fc-title">${s.title}</div>
+      <div class="fc-desc">${s.desc}</div>
+      <span class="fc-tag" style="background:${s.tagBg};color:${s.tagColor};">${s.tag}</span>
+    `;
+    // Dots
+    const dots = document.getElementById('fcDots');
+    dots.innerHTML = FC_SLIDES.map((_, i) =>
+      `<div class="fc-dot${i===fcIdx?' active':''}" onclick="event.stopPropagation();fcGoto(${i})"></div>`
+    ).join('');
+    // Reset progress
+    fcProgressVal = 0;
+    document.getElementById('fcProgress').style.width = '0%';
+  }
+
+  window.fcNext = () => { fcIdx = (fcIdx + 1) % FC_SLIDES.length; fcRender(); resetFcTimer(); };
+  window.fcPrev = () => { fcIdx = (fcIdx - 1 + FC_SLIDES.length) % FC_SLIDES.length; fcRender(); resetFcTimer(); };
+  window.fcGoto = (i) => { fcIdx = i; fcRender(); resetFcTimer(); };
+
+  function resetFcTimer() {
+    clearInterval(fcTimer); clearInterval(fcProgressTimer);
+    fcProgressVal = 0;
+    fcProgressTimer = setInterval(() => {
+      fcProgressVal = Math.min(100, fcProgressVal + (100 / (FC_DURATION / 80)));
+      document.getElementById('fcProgress').style.width = fcProgressVal + '%';
+    }, 80);
+    fcTimer = setTimeout(window.fcNext, FC_DURATION);
+  }
+
+  // ── Ticker Data ─────────────────────────────────────────────────
+  const TICKER_FACTS = [
+    { ico: '⚡', txt: 'Bitcoin settled $10T+ in transactions in 2023' },
+    { ico: '🌍', txt: '420M+ people use crypto globally' },
+    { ico: '📈', txt: 'Ethereum up 2,000%+ since 2019' },
+    { ico: '🔐', txt: 'Crypto can\'t be frozen by any government' },
+    { ico: '💸', txt: 'Send money globally for less than ₹1' },
+    { ico: '🇮🇳', txt: '15 million+ Indians hold crypto' },
+    { ico: '🏦', txt: 'DeFi TVL exceeded $100B in 2024' },
+    { ico: '⏱️', txt: 'Bitcoin transactions settle in ~10 minutes' },
+    { ico: '🔢', txt: 'Only 21 million Bitcoin will ever exist' },
+    { ico: '📉', txt: 'Inflation erodes cash — crypto is deflationary' },
+    { ico: '🚀', txt: 'Start crypto SIP from just ₹100 on CoinDCX' },
+    { ico: '💎', txt: 'Staking can earn 5–20% APY annually' },
+    { ico: '📊', txt: 'Crypto market open 24/7, 365 days a year' },
+    { ico: '🧾', txt: 'India taxes crypto gains at flat 30%' },
+    { ico: '🔗', txt: 'DeFi lets you be your own bank' },
+  ];
+
+  (function buildTicker() {
+    const track = document.getElementById('tickerTrack');
+    // Duplicate for seamless loop
+    const html = [...TICKER_FACTS, ...TICKER_FACTS].map(f =>
+      `<span class="tick-item"><span class="tick-item-ico">${f.ico}</span>${f.txt}</span>`
+    ).join('');
+    track.innerHTML = html;
+  })();
+
+  // Init flashcard on load
+  fcRender();
+  resetFcTimer();
+</script>
+
+<!-- ── Crypto Chat FAB ── -->
+<button id="crypto-fab" onclick="openCryptoChat()" title="Ask your Crypto AI">
+  <span style="font-size:1.6rem">₿</span>
+</button>
+<div id="crypto-bubble" onclick="openCryptoChat()">
+  Wanna know how to get into crypto? 🚀
+  <div class="bub-sub">Tap for personalised advice</div>
+</div>
+
+<!-- Chat Widget -->
+<script src="/static/chat-widget.js"></script>
+
+<script>
+/* ── Crypto Chat Mode ── */
+window.openCryptoChat = function() {
+  // Dismiss bubble
+  const bub = document.getElementById('crypto-bubble');
+  if (bub) { bub.style.opacity = '0'; bub.style.pointerEvents = 'none'; setTimeout(() => bub.remove(), 300); }
+
+  // Patch the widget welcome block to crypto theme before opening
+  _patchCryptoWidget();
+  if (!window._chatOpen) toggleChat();
+};
+
+function _patchCryptoWidget() {
+  if (window._cryptoPatched) return;
+  window._cryptoPatched = true;
+
+  // Replace welcome section
+  const wl = document.querySelector('.sc-wl');
+  if (wl) {
+    wl.className = 'sc-wl sc-wl-crypto';
+    wl.innerHTML = `
+      <div class="sc-wt" style="color:#fcd34d;font-size:1rem;">₿ Crypto Space Guide</div>
+      <div class="sc-ws" style="color:rgba(252,211,77,.7);">Wanna know how to get into crypto? Ask me anything — from setting up your first wallet to reading market charts. I'll give you personalised advice based on your financial profile.</div>
+      <div class="sc-chips" id="cryptoChips">
+        <button class="sc-chip sc-chip-crypto" onclick="scCryptoAsk('How do I start investing in crypto safely?')">🚀 Getting started</button>
+        <button class="sc-chip sc-chip-crypto" onclick="scCryptoAsk('What is Bitcoin and why does it have value?')">₿ What is Bitcoin?</button>
+        <button class="sc-chip sc-chip-crypto" onclick="scCryptoAsk('How much of my savings should I put into crypto?')">💰 How much to invest</button>
+        <button class="sc-chip sc-chip-crypto" onclick="scCryptoAsk('Explain DeFi, staking, and yield farming simply')">🔗 DeFi & Staking</button>
+        <button class="sc-chip sc-chip-crypto" onclick="scCryptoAsk('How do I set up a crypto wallet and keep it safe?')">🔐 Wallets & Security</button>
+        <button class="sc-chip sc-chip-crypto" onclick="scCryptoAsk('What are the best exchanges to buy crypto in India?')">🇮🇳 India Exchanges</button>
+        <button class="sc-chip sc-chip-crypto" onclick="scCryptoAsk('How is crypto taxed in India?')">🧾 Crypto Tax India</button>
+      </div>
+    `;
+  }
+
+  // Override the assistant header for crypto
+  const hn = document.querySelector('.sc-hn');
+  if (hn) hn.textContent = 'Crypto AI Guide';
+  const logo = document.querySelector('.sc-logo');
+  if (logo) { logo.textContent = '₿'; logo.style.background = 'linear-gradient(135deg,#f7931a,#f59e0b)'; logo.style.boxShadow = '0 3px 10px rgba(247,147,26,.4)'; }
+
+  // Patch buildSystem to use crypto system prompt
+  const _origBuild = window.buildSystem || null;
+  window.buildSystem = function() {
+    const ctx = window.userCtx || 'No spending data loaded.';
+    return {
+      parts: [{ text: `You are a Crypto AI Guide embedded in S.E.B.A. (Smart Expense Behaviour Analyser), a personal finance app. You help Indian users understand and get into cryptocurrency safely.
+
+User financial context (from their spending data):
+${ctx}
+
+Use this context to personalise your advice. E.g. if they spend a lot on food delivery, note how even small cutbacks can fund crypto investments.
+
+Reply ONLY using these exact card tags — no paragraphs, no prose.
+
+RULES:
+- STAT cards: key numbers/facts. Max 4.
+- INSIGHT cards: one crisp sentence each. Max 4. Mark type: [warn], [danger], [good], [info].
+- TIP cards: actionable steps. Max 4. Start with imperative verb.
+- Keep every card under 15 words.
+- NO introduction, NO conclusion, NO filler text.
+- Focus on practical, India-specific crypto advice (INR, Indian exchanges like WazirX/CoinDCX/Mudrex, Indian tax rules, UPI on-ramps).
+
+FORMAT (use exactly):
+STAT|<emoji>|<value>|<short label>
+INSIGHT|[type]|<emoji>|<one sentence>
+TIP|<emoji>|<one sentence action>
+
+Example:
+STAT|₿|~₹85L|Bitcoin price today
+STAT|📊|30%|Indian crypto tax rate
+INSIGHT|[info]|🚀|Start with Bitcoin or Ethereum — most liquid and trusted
+INSIGHT|[warn]|⚠️|Never invest more than you can afford to lose
+TIP|💡|Start with ₹500/week via SIP on CoinDCX or Mudrex
+TIP|🔐|Always enable 2FA on your exchange account immediately
+TIP|🧾|Track every crypto trade — India taxes at 30% flat` }]
+    };
+  };
+}
+
+window.scCryptoAsk = function(q) {
+  // Patch first, then send
+  _patchCryptoWidget();
+  document.getElementById('scIn').value = q;
+  window.scSend();
+};
+
+// Auto-open after 2.5s
+window.addEventListener('load', () => {
+  window._chatOpen = false;
+  // Patch toggleChat to track state
+  const _orig = window.toggleChat;
+  window.toggleChat = function() {
+    window._chatOpen = !window._chatOpen;
+    _orig();
+  };
+
+  setTimeout(() => {
+    openCryptoChat();
+  }, 2500);
+});
+</script>
+</body>
+</html>
