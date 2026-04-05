@@ -4,5 +4,5 @@ build/
 __pycache__/
 *.pyc
 venv/
-.env
+# .env (Allowed for private repository auto-deployment)
 .DS_Store
