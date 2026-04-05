@@ -310,7 +310,34 @@
     .sc-wl-crypto { background: linear-gradient(135deg, rgba(247,147,26,.12), rgba(245,158,11,.06)) !important; border: 1px solid rgba(247,147,26,.28) !important; border-radius: 14px; padding: 14px; }
     .sc-chip-crypto { border-color: rgba(247,147,26,.3) !important; background: rgba(247,147,26,.08) !important; color: #fcd34d !important; }
     .sc-chip-crypto:hover { background: rgba(247,147,26,.22) !important; border-color: rgba(247,147,26,.6) !important; color: #fff !important; }
-  </style>
+  
+    /* Universal Mobile Polish injected automatically */
+    html, body { overflow-x: hidden; width: 100%; }
+    * { word-wrap: break-word; } /* Prevent text overflow */
+    @media(max-width: 768px){
+        nav { padding: 0.8rem 1rem !important; flex-wrap: wrap; }
+        .nav-links { gap: 0.3rem !important; }
+        main { padding: 1.5rem 1rem 6rem !important; }
+        .stats-row, .charts-grid, .grid2, .cards-grid, .tips-row, .emi-slider-row, .emi-grid, .cc-grid, .pred-grid { grid-template-columns: 1fr !important; }
+        .chart-card.full, .card, .stat-card { grid-column: span 1 !important; width: 100% !important; margin: 0 auto !important; box-sizing: border-box !important;}
+        .stat-card .value { font-size: 1.5rem !important; }
+        .tx-item, .insight-card { flex-direction: column !important; align-items: flex-start !important; padding: 1rem !important;}
+        .tx-icon, .insight-icon { margin-bottom: 0.5rem !important; }
+        h1, h2 { font-size: 1.4rem !important; word-wrap: break-word; }
+        .hero-title { font-size: 2rem !important; }
+        .hero-desc { font-size: 0.9rem !important; width: 100% !important; }
+        table { display: block; overflow-x: auto; white-space: nowrap; }
+    }
+    @media(max-width: 480px){
+        .nav-link { padding: 0.3rem 0.5rem !important; font-size: 0.75rem !important; }
+        .logo { font-size: 1rem !important; }
+        input, select, button { width: 100% !important; box-sizing: border-box; }
+        .card, .stat-card { padding: 1rem !important; overflow: hidden; }
+        .chart-wrap { height: 180px !important; }
+        .cc-visual { width: 100% !important; height: auto !important; aspect-ratio: 1.58; }
+    }
+
+</style>
 </head>
 <body>
 
