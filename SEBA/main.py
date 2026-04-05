@@ -69,26 +69,56 @@ app.include_router(auth.router,         prefix="/auth",          tags=["Auth"])
 
 @app.post("/chat/ai", tags=["AI Chat"])
 async def ai_chat(request: Request):
-    """Proxy endpoint for Gemini API – keeps the API key server-side."""
+    """Proxy endpoint for Groq API – translates seamlessly from frontend Gemini format."""
     body = await request.json()
-    gemini_key = os.environ.get("GEMINI_API_KEY", "")
-    if not gemini_key:
+    groq_key = os.environ.get("GROQ_API_KEY", "")
+    if not groq_key:
         raise HTTPException(
             status_code=503,
-            detail="Gemini API key not configured. Add GEMINI_API_KEY=your_key to the .env file."
+            detail="Groq API key not configured. Add GROQ_API_KEY in Render."
         )
+        
+    messages = []
+    
+    if "system_instruction" in body:
+        sys_text = body["system_instruction"]["parts"][0]["text"]
+        messages.append({"role": "system", "content": sys_text})
+        
+    for msg in body.get("contents", []):
+        role = "assistant" if msg.get("role") == "model" else "user"
+        text = msg["parts"][0]["text"]
+        messages.append({"role": role, "content": text})
+
+    groq_body = {
+        "model": "llama3-8b-8192",
+        "messages": messages,
+        "temperature": 0.5,
+        "max_tokens": 1500
+    }
+
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}",
-            json=body
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {groq_key}"},
+            json=groq_body
         )
     
     data = resp.json()
     if resp.status_code != 200:
-        error_msg = data.get("error", {}).get("message", "Unknown Google API Error")
-        raise HTTPException(status_code=502, detail=f"Gemini API Error: {error_msg}")
+        error_msg = data.get("error", {}).get("message", "Unknown Groq API Error")
+        raise HTTPException(status_code=502, detail=f"Groq API Error: {error_msg}")
         
-    return data
+    groq_text = data["choices"][0]["message"]["content"]
+    
+    return {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [{"text": groq_text}]
+                }
+            }
+        ]
+    }
 
 @app.get("/health", tags=["Health"])
 async def health():

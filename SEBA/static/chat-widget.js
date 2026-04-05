@@ -115,7 +115,7 @@ document.body.insertAdjacentHTML('beforeend', `
     </div>
     <button class="sc-cl" onclick="toggleChat()" title="Close">✕</button>
   </div>
-  <div class="sc-apib" id="scApi">⚠️ Gemini API key not set. Add <strong>GEMINI_API_KEY</strong> to <code>SEBA/.env</code>.</div>
+  <div class="sc-apib" id="scApi">⚠️ Groq API key not set. Add <strong>GROQ_API_KEY</strong> to Render.</div>
   <div class="sc-bd" id="scBd">
     <div class="sc-wl">
       <div class="sc-wt">👋 Your AI finance coach</div>
@@ -379,7 +379,7 @@ window.scSend = async function () {
 
     if (res.status === 503) {
       document.getElementById('scApi').style.display = 'block';
-      renderCards('INSIGHT|[danger]|⚠️|Gemini API key not configured on server');
+      renderCards('INSIGHT|[danger]|⚠️|Groq API key not configured on server');
     } else if (res.ok) {
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       renderCards(text);
