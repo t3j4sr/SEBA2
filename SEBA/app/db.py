@@ -7,8 +7,8 @@ from supabase import create_client, Client
 
 load_dotenv()
 
-_SUPABASE_URL: str = os.environ["SUPABASE_URL"]
-_SUPABASE_KEY: str = os.environ["SUPABASE_KEY"]
+_SUPABASE_URL: str = os.environ.get("SUPABASE_URL", "")
+_SUPABASE_KEY: str = os.environ.get("SUPABASE_KEY", os.environ.get("SUPABASE_SERVICE_ROLE_KEY", ""))
 
 _client: Client | None = None
 

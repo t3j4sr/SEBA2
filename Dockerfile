@@ -17,5 +17,4 @@ COPY . /app
 # Set working directory to the API backend
 WORKDIR /app/SEBA
 
-# Render automatically provides a $PORT variable, so we pass it safely to uvicorn
-CMD if [ -z "$PORT" ]; then PORT=8000; fi; uvicorn main:app --host 0.0.0.0 --port $PORT
+CMD uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
