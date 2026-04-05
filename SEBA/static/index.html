@@ -739,12 +739,14 @@ const cm = c => CAT[c] || CAT.Misc;
 async function loadSummary() {
   try {
     const r = await fetch(`/analytics/dashboard/${USER_ID}`);
+    if (!r.ok) { showToast('Could not load summary — ' + r.status, 'err'); return; }
     const d = await r.json();
-    document.getElementById('statTotal').textContent = '₹' + d.total_spent.toLocaleString('en-IN');
-    document.getElementById('statCount').textContent = d.transaction_count;
+    if (d == null) return;
+    document.getElementById('statTotal').textContent = '₹' + (d.total_spent || 0).toLocaleString('en-IN');
+    document.getElementById('statCount').textContent = d.transaction_count || 0;
     const monthSpent = d.monthly_breakdown?.[thisMonth] || 0;
     document.getElementById('statMonth').textContent = '₹' + monthSpent.toLocaleString('en-IN');
-  } catch(e) { console.error('Summary error', e); }
+  } catch(e) { console.error('Summary error', e); showToast('Failed to load dashboard data.', 'err'); }
 }
 
 /* ── Load transactions ──────────────────────────────────────────── */
