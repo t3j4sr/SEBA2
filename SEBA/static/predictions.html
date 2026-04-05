@@ -88,8 +88,26 @@
     .ins-title{font-size:.83rem;font-weight:600;margin-bottom:.2rem}
     .ins-body{font-size:.75rem;color:var(--muted);line-height:1.5}
 
-    @media(max-width:900px){.pred-layout{grid-template-columns:1fr}}
-    @media(max-width:600px){.cal-day{font-size:.78rem}}
+    @media(max-width:900px){
+      .pred-layout{grid-template-columns:1fr}
+      main{padding:1.5rem 1rem 6rem}
+    }
+    @media(max-width:700px){
+      nav{padding:.7rem 1rem;flex-wrap:wrap;gap:.3rem}
+      .nav-links{flex-wrap:wrap;gap:.25rem}
+      .nav-link{padding:.28rem .55rem;font-size:.72rem}
+      .cal-card{padding:1.2rem 1rem}
+      .cal-month{font-size:1.05rem}
+      .cal-day{font-size:.78rem;border-radius:8px}
+      .detail-card, .upcoming-card, .insight-card{padding:1rem}
+      .page-title{font-size:1.2rem}
+    }
+    @media(max-width:480px){
+      .cal-grid{gap:3px}
+      .cal-day{font-size:.7rem}
+      .logo{font-size:.95rem}
+      .tagline{display:none}
+    }
 </style>
 </head>
 <body>

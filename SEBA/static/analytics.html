@@ -45,7 +45,25 @@
     .tx-badge{font-size:.65rem;font-weight:600;padding:.18rem .5rem;border-radius:99px;background:#1a1a2e;color:#8888cc}
     .section-heading{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:1.2rem}
     .empty{text-align:center;color:var(--muted);padding:2.5rem 0;font-size:.88rem}
-    @media(max-width:700px){.charts-grid{grid-template-columns:1fr}.chart-card.full{grid-column:span 1}.stats-row{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:900px){ .stats-row{grid-template-columns:repeat(2,1fr)} }
+    @media(max-width:700px){
+      nav{padding:.7rem 1rem;flex-wrap:wrap;gap:.35rem}
+      .nav-links{flex-wrap:wrap;gap:.25rem}
+      .nav-link{padding:.3rem .6rem;font-size:.73rem}
+      main{padding:1.4rem .9rem 6rem}
+      .stats-row{grid-template-columns:repeat(2,1fr);gap:.55rem}
+      .stat-card{padding:.85rem .9rem}
+      .stat-card .value{font-size:1.5rem}
+      .charts-grid{grid-template-columns:1fr}
+      .chart-card.full{grid-column:span 1}
+      h2{font-size:1.15rem}
+    }
+    @media(max-width:480px){
+      .stats-row{grid-template-columns:repeat(2,1fr);gap:.4rem}
+      .stat-card .value{font-size:1.3rem}
+      .chart-wrap{height:190px}
+      .logo{font-size:.95rem}
+    }
 </style>
 </head>
 <body>

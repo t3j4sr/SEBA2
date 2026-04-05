@@ -31,18 +31,26 @@ async def upload_statement(
     filename = (file.filename or "").lower()
     content = await file.read()
 
-    if filename.endswith(".csv") or "csv" in (file.content_type or ""):
+    ct = (file.content_type or "").lower()
+    
+    if filename.endswith(".csv") or ct in ("text/csv", "application/csv", "text/plain", "text/comma-separated-values"):
         transactions = parse_csv(content)
-    elif filename.endswith((".xlsx", ".xls")) or "excel" in (file.content_type or "") or \
-            "spreadsheet" in (file.content_type or "") or \
-            (file.content_type or "") == "application/vnd.ms-excel":
+    elif filename.endswith((".xlsx", ".xls")) or "excel" in ct or "spreadsheet" in ct or ct == "application/vnd.ms-excel":
         transactions = parse_excel(content)
-    elif filename.endswith(".pdf") or "pdf" in (file.content_type or ""):
+    elif filename.endswith(".pdf") or "pdf" in ct:
         transactions = parse_pdf(content)
+    elif ct in ("", "application/octet-stream", "binary/octet-stream"):
+        # Unknown type — try to detect by magic bytes / fallback to CSV
+        if content[:4] == b'%PDF':
+            transactions = parse_pdf(content)
+        elif content[:2] in (b'PK',):
+            transactions = parse_excel(content)
+        else:
+            transactions = parse_csv(content)
     else:
         raise HTTPException(
             status_code=415,
-            detail="Unsupported file type. Upload a .csv, .xlsx, or .pdf bank statement.",
+            detail=f"Unsupported file type ({ct}). Upload a .csv, .xlsx, or .pdf bank statement.",
         )
 
     if not transactions:
