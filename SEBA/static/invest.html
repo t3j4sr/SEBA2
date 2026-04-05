@@ -80,33 +80,6 @@
       .sip-result{grid-template-columns:1fr 1fr}
     }
     @media(max-width:500px){.invest-grid{grid-template-columns:1fr}.sip-result{grid-template-columns:1fr 1fr}}
-  
-    /* Universal Mobile Polish injected automatically */
-    html, body { overflow-x: hidden; width: 100%; }
-    * { word-wrap: break-word; } /* Prevent text overflow */
-    @media(max-width: 768px){
-        nav { padding: 0.8rem 1rem !important; flex-wrap: wrap; }
-        .nav-links { gap: 0.3rem !important; }
-        main { padding: 1.5rem 1rem 6rem !important; }
-        .stats-row, .charts-grid, .grid2, .cards-grid, .tips-row, .emi-slider-row, .emi-grid, .cc-grid, .pred-grid { grid-template-columns: 1fr !important; }
-        .chart-card.full, .card, .stat-card { grid-column: span 1 !important; width: 100% !important; margin: 0 auto !important; box-sizing: border-box !important;}
-        .stat-card .value { font-size: 1.5rem !important; }
-        .tx-item, .insight-card { flex-direction: column !important; align-items: flex-start !important; padding: 1rem !important;}
-        .tx-icon, .insight-icon { margin-bottom: 0.5rem !important; }
-        h1, h2 { font-size: 1.4rem !important; word-wrap: break-word; }
-        .hero-title { font-size: 2rem !important; }
-        .hero-desc { font-size: 0.9rem !important; width: 100% !important; }
-        table { display: block; overflow-x: auto; white-space: nowrap; }
-    }
-    @media(max-width: 480px){
-        .nav-link { padding: 0.3rem 0.5rem !important; font-size: 0.75rem !important; }
-        .logo { font-size: 1rem !important; }
-        input, select, button { width: 100% !important; box-sizing: border-box; }
-        .card, .stat-card { padding: 1rem !important; overflow: hidden; }
-        .chart-wrap { height: 180px !important; }
-        .cc-visual { width: 100% !important; height: auto !important; aspect-ratio: 1.58; }
-    }
-
 </style>
 </head>
 <body>
@@ -315,9 +288,10 @@ loadSurplus();
 calcSIP();
 </script>
 <style>.chat-fab{position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:#6366f1;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;cursor:pointer;border:none;box-shadow:0 4px 24px rgba(99,102,241,.4);transition:transform .2s,box-shadow .2s;z-index:9999}.chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(99,102,241,.6)}
-    /* Universal Mobile Polish injected automatically */
+
+    /* Universal Mobile Polish injected automatically v2 */
     html, body { overflow-x: hidden; width: 100%; }
-    * { word-wrap: break-word; } /* Prevent text overflow */
+    * { word-wrap: break-word; }
     @media(max-width: 768px){
         nav { padding: 0.8rem 1rem !important; flex-wrap: wrap; }
         .nav-links { gap: 0.3rem !important; }
@@ -335,12 +309,12 @@ calcSIP();
     @media(max-width: 480px){
         .nav-link { padding: 0.3rem 0.5rem !important; font-size: 0.75rem !important; }
         .logo { font-size: 1rem !important; }
-        input, select, button { width: 100% !important; box-sizing: border-box; }
+        input, select, .btn-submit { width: 100% !important; box-sizing: border-box; } /* FIXED: removed global 'button' */
+        .toggle-pw { width: auto !important; right: 0.2rem !important; padding: 0.5rem !important; }
         .card, .stat-card { padding: 1rem !important; overflow: hidden; }
         .chart-wrap { height: 180px !important; }
         .cc-visual { width: 100% !important; height: auto !important; aspect-ratio: 1.58; }
     }
-
 </style>
 <button class="chat-fab" title="AI Chat" onclick="location.href='/chat'">💬</button>
 <script src="/static/chat-widget.js"></script></body>

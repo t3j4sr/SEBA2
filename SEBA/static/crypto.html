@@ -310,10 +310,10 @@
     .sc-wl-crypto { background: linear-gradient(135deg, rgba(247,147,26,.12), rgba(245,158,11,.06)) !important; border: 1px solid rgba(247,147,26,.28) !important; border-radius: 14px; padding: 14px; }
     .sc-chip-crypto { border-color: rgba(247,147,26,.3) !important; background: rgba(247,147,26,.08) !important; color: #fcd34d !important; }
     .sc-chip-crypto:hover { background: rgba(247,147,26,.22) !important; border-color: rgba(247,147,26,.6) !important; color: #fff !important; }
-  
-    /* Universal Mobile Polish injected automatically */
+
+    /* Universal Mobile Polish injected automatically v2 */
     html, body { overflow-x: hidden; width: 100%; }
-    * { word-wrap: break-word; } /* Prevent text overflow */
+    * { word-wrap: break-word; }
     @media(max-width: 768px){
         nav { padding: 0.8rem 1rem !important; flex-wrap: wrap; }
         .nav-links { gap: 0.3rem !important; }
@@ -331,12 +331,12 @@
     @media(max-width: 480px){
         .nav-link { padding: 0.3rem 0.5rem !important; font-size: 0.75rem !important; }
         .logo { font-size: 1rem !important; }
-        input, select, button { width: 100% !important; box-sizing: border-box; }
+        input, select, .btn-submit { width: 100% !important; box-sizing: border-box; } /* FIXED: removed global 'button' */
+        .toggle-pw { width: auto !important; right: 0.2rem !important; padding: 0.5rem !important; }
         .card, .stat-card { padding: 1rem !important; overflow: hidden; }
         .chart-wrap { height: 180px !important; }
         .cc-visual { width: 100% !important; height: auto !important; aspect-ratio: 1.58; }
     }
-
 </style>
 </head>
 <body>

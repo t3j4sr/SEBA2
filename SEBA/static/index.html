@@ -491,10 +491,10 @@
     .notif-badge.insight { background: #7c3aed; box-shadow: 0 0 8px rgba(124,58,237,.8); }
     /* insight item accent */
     .notif-item.insight-item { border-left: 2px solid rgba(124,58,237,.5); background: rgba(124,58,237,.04); }
-  
-    /* Universal Mobile Polish injected automatically */
+
+    /* Universal Mobile Polish injected automatically v2 */
     html, body { overflow-x: hidden; width: 100%; }
-    * { word-wrap: break-word; } /* Prevent text overflow */
+    * { word-wrap: break-word; }
     @media(max-width: 768px){
         nav { padding: 0.8rem 1rem !important; flex-wrap: wrap; }
         .nav-links { gap: 0.3rem !important; }
@@ -512,12 +512,12 @@
     @media(max-width: 480px){
         .nav-link { padding: 0.3rem 0.5rem !important; font-size: 0.75rem !important; }
         .logo { font-size: 1rem !important; }
-        input, select, button { width: 100% !important; box-sizing: border-box; }
+        input, select, .btn-submit { width: 100% !important; box-sizing: border-box; } /* FIXED: removed global 'button' */
+        .toggle-pw { width: auto !important; right: 0.2rem !important; padding: 0.5rem !important; }
         .card, .stat-card { padding: 1rem !important; overflow: hidden; }
         .chart-wrap { height: 180px !important; }
         .cc-visual { width: 100% !important; height: auto !important; aspect-ratio: 1.58; }
     }
-
 </style>
 </head>
 <body>
