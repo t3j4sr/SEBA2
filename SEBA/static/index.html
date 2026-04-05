@@ -830,7 +830,7 @@ async function uploadFile() {
     const res  = await fetch('/upload/statement', { method: 'POST', body: fd });
     const data = await res.json();
     if (res.ok) {
-      showToast(`✓ Imported ${data.imported} transactions`, 'ok');
+      showToast(`✓ Imported ${data.stored} transaction${data.stored !== 1 ? 's' : ''}`, 'ok');
       await loadSummary(); await loadTransactions();
       addInsightToNotif();
       // Open AI chat with upload greeting

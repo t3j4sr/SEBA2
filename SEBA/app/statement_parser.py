@@ -17,11 +17,15 @@ import pandas as pd
 
 # ── Column name normalisation ─────────────────────────────────────────────────
 _COL_ALIASES = {
-    "amount":       ["amount", "debit", "withdrawal", "dr", "txn amount", "transaction amount"],
+    "amount":       ["amount", "amount (₹)", "amount (rs)", "debit", "withdrawal", "dr", "txn amount", "transaction amount"],
     "date":         ["date", "txn date", "transaction date", "value date", "posting date"],
     "description":  ["description", "narration", "particulars", "details", "merchant", "remarks"],
     "credit":       ["credit", "cr", "deposit"],
+    "category":     ["category", "type"],
 }
+
+# Income categories to skip during import (not expenses)
+_INCOME_CATEGORIES = {"income", "salary", "credit", "refund", "interest", "cashback", "reward"}
 
 
 def _normalise_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -56,8 +60,31 @@ def _process_df(df: pd.DataFrame) -> list[dict]:
         except (ValueError, TypeError):
             continue
 
-        if amount <= 0:
-            continue  # Skip blank/credit rows
+        # Skip truly zero/empty rows
+        if amount == 0:
+            continue
+
+        # Skip income/salary rows identified by a Category column
+        if "category" in df.columns:
+            cat_val = str(row.get("category", "")).strip().lower()
+            if cat_val in _INCOME_CATEGORIES:
+                continue
+
+        # Many banks encode debits as negative numbers — take absolute value
+        # Positive entries in a "credit" column are income; skip them (not expenses)
+        is_income_row = False
+        if amount > 0 and "credit" in df.columns:
+            credit_val = row.get("credit")
+            if not pd.isna(credit_val):
+                try:
+                    if float(str(credit_val).replace(",", "").strip()) > 0:
+                        is_income_row = True
+                except (ValueError, TypeError):
+                    pass
+        if is_income_row:
+            continue  # Skip credit/income rows
+
+        amount = abs(amount)  # normalise negatives → positive expense amount
 
         # Date — fall back to today if column missing or unparseable
         txn_date: Optional[date] = None
@@ -76,8 +103,11 @@ def _process_df(df: pd.DataFrame) -> list[dict]:
             or str(row.get("category", "")).strip()
             or "Unknown"
         )
+        # Skip rows where description is NaN/empty after cleanup
+        if description.lower() in ("nan", "", "unknown") and amount < 1:
+            continue
 
-        txn_type = "credit" if "credit" in df.columns and not pd.isna(row.get("credit")) else "debit"
+        txn_type = "debit"
 
         transactions.append({
             "amount": amount,
